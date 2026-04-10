@@ -20,7 +20,7 @@ private class MenuFreeTextView: UITextView {
 }
 
 struct SelectableTextView: UIViewRepresentable {
-    let text: String
+    let blocks: [TextBlock]
     let onSelectionChange: (TextSelection?) -> Void
 
     func makeUIView(context: Context) -> UITextView {
@@ -31,18 +31,7 @@ struct SelectableTextView: UIViewRepresentable {
         textView.textContainerInset = UIEdgeInsets(top: 20, left: 16, bottom: 80, right: 16)
         textView.showsVerticalScrollIndicator = false
         textView.delegate = context.coordinator
-
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = YapsTheme.textViewLineSpacing
-        paragraphStyle.paragraphSpacing = YapsTheme.textViewParagraphSpacing
-
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: YapsTheme.textViewFont,
-            .foregroundColor: UIColor.label,
-            .paragraphStyle: paragraphStyle,
-        ]
-
-        textView.attributedText = NSAttributedString(string: text, attributes: attributes)
+        textView.attributedText = Self.buildAttributedString(from: blocks)
         return textView
     }
 
@@ -50,6 +39,43 @@ struct SelectableTextView: UIViewRepresentable {
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
+    }
+
+    static func buildAttributedString(from blocks: [TextBlock]) -> NSAttributedString {
+        let result = NSMutableAttributedString()
+
+        let bodyParagraph = NSMutableParagraphStyle()
+        bodyParagraph.lineSpacing = YapsTheme.textViewLineSpacing
+        bodyParagraph.paragraphSpacing = YapsTheme.textViewParagraphSpacing
+
+        let headingParagraph = NSMutableParagraphStyle()
+        headingParagraph.lineSpacing = 4
+        headingParagraph.paragraphSpacing = 6
+        headingParagraph.alignment = .center
+
+        for (i, block) in blocks.enumerated() {
+            if i > 0 { result.append(NSAttributedString(string: "\n\n")) }
+
+            switch block.type {
+            case .heading:
+                let attrs: [NSAttributedString.Key: Any] = [
+                    .font: UIFont.systemFont(ofSize: 22, weight: .bold, width: .standard),
+                    .foregroundColor: UIColor.label,
+                    .paragraphStyle: headingParagraph,
+                ]
+                result.append(NSAttributedString(string: block.text, attributes: attrs))
+
+            case .paragraph:
+                let attrs: [NSAttributedString.Key: Any] = [
+                    .font: YapsTheme.textViewFont,
+                    .foregroundColor: UIColor.label,
+                    .paragraphStyle: bodyParagraph,
+                ]
+                result.append(NSAttributedString(string: block.text, attributes: attrs))
+            }
+        }
+
+        return result
     }
 
     class Coordinator: NSObject, UITextViewDelegate {
@@ -78,7 +104,6 @@ struct SelectableTextView: UIViewRepresentable {
 
             let uiKitRect = textView.firstRect(for: textRange)
 
-            // Convert from UITextView content coordinates to the view's visible coordinates
             let visibleRect = CGRect(
                 x: uiKitRect.origin.x - textView.contentOffset.x,
                 y: uiKitRect.origin.y - textView.contentOffset.y,

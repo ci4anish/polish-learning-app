@@ -10,11 +10,13 @@
 		29665FFFC60A4840E3A457E9 /* GrabTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C72A892F0F15471E9AAE05 /* GrabTextView.swift */; };
 		3584D019EE0A157E41CE46ED /* PreviewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26DBAD756BAB41765DD0DBBF /* PreviewerView.swift */; };
 		3FFB8336D642C7212B827924 /* ExplanationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1DAE82AAEEAB269001567 /* ExplanationResult.swift */; };
+		42429619B489004B3BC8F924 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7A5C53021AFB460192747EA /* APIService.swift */; };
 		576D9498EA575DA8C3C5DFB6 /* MockAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA9975330DF838685731ECC9 /* MockAPIService.swift */; };
 		5BB036706E3445A886901063 /* AudioButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4F39354FEA0DD8340312B /* AudioButton.swift */; };
 		661B58055D462E4D14C942E4 /* ContentLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CC3C1D0A968E5FE84399AC /* ContentLanguage.swift */; };
 		7B82739DF335884DB26FAF80 /* TranslationPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C72B690747959252A79133 /* TranslationPopup.swift */; };
 		7D79664891F662C9FB090AE0 /* SelectableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6D437D599C55511EEDB4F2 /* SelectableTextView.swift */; };
+		8110AF2854D0FE7EBBBE3EDC /* sample-page.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CE9783A93C90160769C708B0 /* sample-page.jpg */; };
 		840DEE1A9B4C31C4B31B689E /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64649C389244124560F7EFC6 /* CameraView.swift */; };
 		A41407B5DF949C0CF8718465 /* LanguageSelectorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE706C9608CC2C5BE28E910C /* LanguageSelectorSheet.swift */; };
 		A431A5016ED2634005F2F238 /* YapsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674FCD22BB88FBD6D023E555 /* YapsApp.swift */; };
@@ -40,6 +42,8 @@
 		AE706C9608CC2C5BE28E910C /* LanguageSelectorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSelectorSheet.swift; sourceTree = "<group>"; };
 		B4B1DAE82AAEEAB269001567 /* ExplanationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplanationResult.swift; sourceTree = "<group>"; };
 		B586E9514030CA2E18B1B7BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B7A5C53021AFB460192747EA /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		CE9783A93C90160769C708B0 /* sample-page.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample-page.jpg"; sourceTree = "<group>"; };
 		DA9975330DF838685731ECC9 /* MockAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAPIService.swift; sourceTree = "<group>"; };
 		F0B91D602927C76D4307CB8D /* GrammarDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrammarDetailView.swift; sourceTree = "<group>"; };
 		F506181BE5B3E3A33F74BEBE /* MagicButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagicButton.swift; sourceTree = "<group>"; };
@@ -73,6 +77,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4D011CD79F034852D7A42E24 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				CE9783A93C90160769C708B0 /* sample-page.jpg */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		51FC6F5F0E8D9C6C709782EE /* Previewer */ = {
 			isa = PBXGroup;
 			children = (
@@ -86,6 +98,7 @@
 		7A542A774C6E2F7906EEF38C /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B7A5C53021AFB460192747EA /* APIService.swift */,
 				DA9975330DF838685731ECC9 /* MockAPIService.swift */,
 			);
 			path = Services;
@@ -126,6 +139,7 @@
 				B586E9514030CA2E18B1B7BE /* Info.plist */,
 				24ACE7FFE4951B551D3724DA /* App */,
 				EE9E39720B408FF61D9670C6 /* Models */,
+				4D011CD79F034852D7A42E24 /* Resources */,
 				7A542A774C6E2F7906EEF38C /* Services */,
 				DF5D3279077B0D838EB53D8C /* Theme */,
 				8BBC96095127A99967BACBC6 /* Views */,
@@ -208,6 +222,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F0F60D91009D4CC7E066BBF8 /* Assets.xcassets in Resources */,
+				8110AF2854D0FE7EBBBE3EDC /* sample-page.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -218,6 +233,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				42429619B489004B3BC8F924 /* APIService.swift in Sources */,
 				5BB036706E3445A886901063 /* AudioButton.swift in Sources */,
 				840DEE1A9B4C31C4B31B689E /* CameraView.swift in Sources */,
 				661B58055D462E4D14C942E4 /* ContentLanguage.swift in Sources */,

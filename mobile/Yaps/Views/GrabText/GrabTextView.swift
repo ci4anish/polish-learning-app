@@ -179,8 +179,8 @@ struct GrabTextView: View {
                 useSampleText()
             } label: {
                 Label(
-                    isCameraAvailable ? "Use Sample Text" : "Try Sample Text",
-                    systemImage: "doc.text.fill"
+                    isCameraAvailable ? "Use Sample Page" : "Try Sample Page",
+                    systemImage: "doc.text.image.fill"
                 )
                 .font(YapsTheme.headlineFont)
                 .frame(maxWidth: .infinity)
@@ -192,20 +192,41 @@ struct GrabTextView: View {
     }
 
     private func useSampleText() {
-        processImage(nil)
+        let sampleData = APIService.shared.loadSampleImage()
+        processImage(sampleData)
     }
 
     private func processImage(_ imageData: Data?) {
         isProcessing = true
         Task {
             do {
-                let result = try await MockAPIService.shared.performOCR(image: imageData)
-                ocrResult = result
+                if let data = imageData {
+                    let result = try await APIService.shared.performOCR(
+                        imageData: data,
+                        languageHint: selectedLanguage?.id
+                    )
+                    ocrResult = result
+                    if let lang = ContentLanguage.all.first(where: { $0.id == result.detectedLanguage }) {
+                        withAnimation { selectedLanguage = lang }
+                    }
+                } else {
+                    let result = try await MockAPIService.shared.performOCR(image: nil)
+                    ocrResult = result
+                }
                 isProcessing = false
                 withAnimation { scanCount += 1 }
                 navigateToPreviewer = true
             } catch {
-                isProcessing = false
+                print("[GrabText] API failed, falling back to mock:", error.localizedDescription)
+                do {
+                    let result = try await MockAPIService.shared.performOCR(image: imageData)
+                    ocrResult = result
+                    isProcessing = false
+                    withAnimation { scanCount += 1 }
+                    navigateToPreviewer = true
+                } catch {
+                    isProcessing = false
+                }
             }
         }
     }

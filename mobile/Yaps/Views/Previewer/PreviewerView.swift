@@ -11,7 +11,7 @@ struct PreviewerView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            SelectableTextView(text: ocrResult.fullText) { newSelection in
+            SelectableTextView(blocks: ocrResult.blocks) { newSelection in
                 handleSelectionChange(newSelection)
             }
 

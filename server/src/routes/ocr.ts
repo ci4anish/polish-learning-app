@@ -8,13 +8,15 @@ ocr.post("/", async (c) => {
   const contentType = c.req.header("content-type") ?? "";
 
   let imageBase64: string;
+  let languageHint: string | undefined;
 
   if (contentType.includes("application/json")) {
-    const body = await c.req.json<{ image?: string }>();
+    const body = await c.req.json<{ image?: string; languageHint?: string }>();
     if (!body.image) {
       return c.json({ success: false, error: "Missing 'image' field (base64)" }, 400);
     }
     imageBase64 = body.image;
+    languageHint = body.languageHint;
   } else if (contentType.includes("multipart/form-data")) {
     const form = await c.req.parseBody();
     const file = form["image"];
@@ -29,6 +31,9 @@ ocr.post("/", async (c) => {
     }
     const mimeType = file.type || "image/jpeg";
     imageBase64 = `data:${mimeType};base64,${btoa(binary)}`;
+    if (typeof form["languageHint"] === "string") {
+      languageHint = form["languageHint"];
+    }
   } else {
     return c.json(
       { success: false, error: "Content-Type must be application/json or multipart/form-data" },
@@ -36,7 +41,7 @@ ocr.post("/", async (c) => {
     );
   }
 
-  const result = await performOcr(imageBase64, c.env);
+  const result = await performOcr(imageBase64, c.env, languageHint);
 
   return c.json(result, result.success ? 200 : 502);
 });

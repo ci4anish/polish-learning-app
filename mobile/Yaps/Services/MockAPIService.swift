@@ -8,15 +8,27 @@ actor MockAPIService {
 
         return OCRResult(
             id: UUID(),
-            fullText: """
-            Cześć! Jak się masz? Dzisiaj jest piękny dzień. \
-            Chciałbym pójść na spacer do parku. \
-            Czy masz ochotę iść ze mną? \
-            Możemy kupić lody po drodze. \
-            Pogoda jest wspaniała, a park wygląda pięknie o tej porze roku.
-            """,
-            language: "pl",
-            confidence: 0.95
+            content: OCRContent(
+                detectedLanguage: "pl",
+                blocks: [
+                    .init(
+                        type: .heading,
+                        text: "SŁOWO WSTĘPNE"
+                    ),
+                    .init(
+                        type: .paragraph,
+                        text: #"Z czcią i wzruszeniem oddajemy tę książkę w ręce Żołnierza Polskiego. Na wiele już lat przed tą wojną była ona wielką rzadkością w Polsce, „białym krukiem", o którego posiadanie zabiegali zbieracze i niejedna biblioteka."#
+                    ),
+                    .init(
+                        type: .paragraph,
+                        text: "Niezwykłe koleje losu wyrzuciły ją w chwili obecnej na tę wyspę daleką, gdzie od pięciu lat z górą przebywa Żołnierz Polski."
+                    ),
+                    .init(
+                        type: .paragraph,
+                        text: "W 1915 roku, gdy wykuwał się w ciężkim mozole Zbrojny Czyn Oręża Polskiego, Kazimierz Przerwa Tetmajer stanął u boku młodego Żołnierza-Bojownika o Wolność i Niepodległość Polski."
+                    ),
+                ]
+            )
         )
     }
 

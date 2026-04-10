@@ -2,9 +2,19 @@ export type Bindings = {
   GEMINI_API_KEY: string;
 };
 
+export type TextBlock = {
+  type: "heading" | "paragraph";
+  text: string;
+};
+
+export type OcrContent = {
+  detectedLanguage: string;
+  blocks: TextBlock[];
+};
+
 export type OcrResult = {
   success: boolean;
-  text: string;
+  content?: OcrContent;
   provider: string;
   model: string;
   usage?: {
