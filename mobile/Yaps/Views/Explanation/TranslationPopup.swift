@@ -78,7 +78,7 @@ struct TranslationPopup: View {
                 }
                 .buttonStyle(.glass)
 
-                AudioButton()
+                AudioButton(text: result.selectedText)
             }
         }
         .padding(YapsTheme.padding)

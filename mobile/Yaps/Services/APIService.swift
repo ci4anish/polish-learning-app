@@ -106,6 +106,39 @@ actor APIService {
         return ExplanationResult(from: content)
     }
 
+    private struct ErrorResponse: Decodable { let error: String? }
+
+    func getAudio(text: String, language: String = "Polish") async throws -> Data {
+        let url = URL(string: "\(baseURL)/api/audio")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 30
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        struct AudioRequest: Encodable {
+            let text: String
+            let language: String
+        }
+
+        request.httpBody = try JSONEncoder().encode(AudioRequest(text: text, language: language))
+
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                throw APIError.serverError(errorResponse.error ?? "Audio generation failed")
+            }
+            throw APIError.serverError("Audio generation failed")
+        }
+
+        return data
+    }
+
     nonisolated func loadSampleImage() -> Data? {
         guard let url = Bundle.main.url(forResource: "sample-page", withExtension: "jpg") else { return nil }
         return try? Data(contentsOf: url)

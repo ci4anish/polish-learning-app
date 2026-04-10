@@ -28,7 +28,7 @@ struct GrabTextView: View {
             actionButtons
                 .padding(.bottom, 32)
         }
-        .navigationTitle("Яппс")
+        .navigationTitle("Yaps")
         .fullScreenCover(isPresented: $showCamera) {
             CameraView { image in
                 processImage(image)

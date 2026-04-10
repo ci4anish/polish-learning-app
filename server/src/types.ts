@@ -1,5 +1,12 @@
 export type Bindings = {
   GEMINI_API_KEY: string;
+  SUPABASE_URL: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
+  SUPABASE_JWT_SECRET: string;
+};
+
+export type Variables = {
+  userId: string;
 };
 
 export type TextBlock = {
@@ -54,5 +61,12 @@ export type ExplainResult = {
   provider: string;
   model: string;
   usage?: UsageInfo;
+  error?: string;
+};
+
+export type AudioResult = {
+  success: boolean;
+  audioData?: Uint8Array;
+  mimeType?: string;
   error?: string;
 };

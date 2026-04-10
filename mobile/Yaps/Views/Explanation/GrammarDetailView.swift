@@ -125,7 +125,7 @@ struct GrammarDetailView: View {
         VStack(alignment: .leading, spacing: 12) {
             sectionHeader("Вимова", icon: "speaker.wave.2.fill")
 
-            AudioButton()
+            AudioButton(text: result.selectedText)
                 .frame(maxWidth: .infinity)
         }
     }

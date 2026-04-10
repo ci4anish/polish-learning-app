@@ -1,8 +1,12 @@
 import { Hono } from "hono";
-import type { Bindings } from "../types";
+import type { Bindings, Variables } from "../types";
 import { performOcr } from "../services/ocr";
+import { authMiddleware } from "../middleware/auth";
+import { createSupabaseClient } from "../lib/supabase";
 
-const ocr = new Hono<{ Bindings: Bindings }>();
+const ocr = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+
+ocr.use(authMiddleware);
 
 ocr.post("/", async (c) => {
   const contentType = c.req.header("content-type") ?? "";
@@ -42,6 +46,24 @@ ocr.post("/", async (c) => {
   }
 
   const result = await performOcr(imageBase64, c.env, languageHint);
+
+  const userId = c.get("userId");
+  if (userId && result.success && result.content) {
+    const supabase = createSupabaseClient(c.env);
+    c.executionCtx.waitUntil(
+      Promise.resolve(
+        supabase.from("ocr_history").insert({
+          user_id: userId,
+          detected_language: result.content.detectedLanguage,
+          blocks: result.content.blocks,
+          model: result.model,
+          provider: result.provider,
+        }),
+      ).then(({ error }) => {
+        if (error) console.error("[history] failed to save ocr history:", error.message);
+      }),
+    );
+  }
 
   return c.json(result, result.success ? 200 : 502);
 });
