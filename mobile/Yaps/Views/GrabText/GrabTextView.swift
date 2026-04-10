@@ -1,0 +1,164 @@
+import SwiftUI
+import UIKit
+
+struct GrabTextView: View {
+    @State private var showCamera = false
+    @State private var ocrResult: OCRResult?
+    @State private var isProcessing = false
+    @State private var navigateToPreviewer = false
+    @State private var scanCount = 0
+    @State private var heroScale: CGFloat = 0.8
+    @State private var heroOpacity: CGFloat = 0
+
+    private var isCameraAvailable: Bool {
+        UIImagePickerController.isSourceTypeAvailable(.camera)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            heroSection
+                .scaleEffect(heroScale)
+                .opacity(heroOpacity)
+
+            Spacer()
+
+            actionButtons
+                .padding(.bottom, 32)
+        }
+        .navigationTitle("Yaps")
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraView { image in
+                processImage(image)
+            }
+        }
+        .navigationDestination(isPresented: $navigateToPreviewer) {
+            if let result = ocrResult {
+                PreviewerView(ocrResult: result)
+            }
+        }
+        .overlay {
+            if isProcessing {
+                ProcessingOverlay()
+            }
+        }
+        .onAppear {
+            withAnimation(.spring(duration: 0.8, bounce: 0.4)) {
+                heroScale = 1.0
+                heroOpacity = 1.0
+            }
+        }
+    }
+
+    private var heroSection: some View {
+        VStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .frame(width: 130, height: 130)
+
+                Image(systemName: "text.viewfinder")
+                    .font(.system(size: 52, weight: .light))
+                    .foregroundStyle(.tint)
+                    .symbolEffect(.pulse, options: .repeating.speed(0.5))
+            }
+
+            VStack(spacing: 8) {
+                Text("Grab Text")
+                    .font(YapsTheme.titleFont)
+
+                Text("Take a photo of Polish text\nto start learning")
+                    .font(YapsTheme.bodyFont)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            if scanCount > 0 {
+                Label("\(scanCount) text\(scanCount == 1 ? "" : "s") scanned", systemImage: "checkmark.circle.fill")
+                    .font(YapsTheme.captionFont)
+                    .foregroundStyle(.secondary)
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+    }
+
+    private var actionButtons: some View {
+        VStack(spacing: 12) {
+            if isCameraAvailable {
+                Button {
+                    YapsTheme.hapticTap()
+                    showCamera = true
+                } label: {
+                    Label("Scan Text", systemImage: "camera.fill")
+                        .font(YapsTheme.headlineFont)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                }
+                .buttonStyle(.glassProminent)
+            }
+
+            Button {
+                YapsTheme.hapticTap()
+                useSampleText()
+            } label: {
+                Label(
+                    isCameraAvailable ? "Use Sample Text" : "Try Sample Text",
+                    systemImage: "doc.text.fill"
+                )
+                .font(YapsTheme.headlineFont)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+            }
+            .buttonStyle(.glass)
+        }
+        .padding(.horizontal, 32)
+    }
+
+    private func useSampleText() {
+        processImage(nil)
+    }
+
+    private func processImage(_ imageData: Data?) {
+        isProcessing = true
+        Task {
+            do {
+                let result = try await MockAPIService.shared.performOCR(image: imageData)
+                ocrResult = result
+                isProcessing = false
+                withAnimation { scanCount += 1 }
+                navigateToPreviewer = true
+            } catch {
+                isProcessing = false
+            }
+        }
+    }
+}
+
+struct ProcessingOverlay: View {
+    @State private var rotation: Double = 0
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 32, weight: .light))
+                    .foregroundStyle(.tint)
+                    .rotationEffect(.degrees(rotation))
+                    .onAppear {
+                        withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
+                            rotation = 360
+                        }
+                    }
+
+                Text("Analyzing text…")
+                    .font(YapsTheme.headlineFont)
+            }
+            .padding(32)
+            .glassEffect(.regular, in: .rect(cornerRadius: 20))
+        }
+    }
+}

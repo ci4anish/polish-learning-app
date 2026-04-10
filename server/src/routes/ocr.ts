@@ -1,0 +1,44 @@
+import { Hono } from "hono";
+import type { Bindings } from "../types";
+import { performOcr } from "../services/ocr";
+
+const ocr = new Hono<{ Bindings: Bindings }>();
+
+ocr.post("/", async (c) => {
+  const contentType = c.req.header("content-type") ?? "";
+
+  let imageBase64: string;
+
+  if (contentType.includes("application/json")) {
+    const body = await c.req.json<{ image?: string }>();
+    if (!body.image) {
+      return c.json({ success: false, error: "Missing 'image' field (base64)" }, 400);
+    }
+    imageBase64 = body.image;
+  } else if (contentType.includes("multipart/form-data")) {
+    const form = await c.req.parseBody();
+    const file = form["image"];
+    if (!(file instanceof File)) {
+      return c.json({ success: false, error: "Missing 'image' file in form data" }, 400);
+    }
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    for (const byte of bytes) {
+      binary += String.fromCharCode(byte);
+    }
+    const mimeType = file.type || "image/jpeg";
+    imageBase64 = `data:${mimeType};base64,${btoa(binary)}`;
+  } else {
+    return c.json(
+      { success: false, error: "Content-Type must be application/json or multipart/form-data" },
+      415,
+    );
+  }
+
+  const result = await performOcr(imageBase64, c.env);
+
+  return c.json(result, result.success ? 200 : 502);
+});
+
+export default ocr;

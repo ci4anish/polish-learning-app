@@ -5,14 +5,19 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:ocr": "tsx test/test-ocr.ts"
   },
   "dependencies": {
-    "hono": "^4.7.0"
+    "hono": "^4.7.0",
+    "openai": "^6.34.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250327.0",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.0",
+    "uuid": "^13.0.0",
     "wrangler": "^4.14.0"
   }
 }
