@@ -7,7 +7,7 @@ struct AudioButton: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "speaker.slash.fill")
-                Text("Audio")
+                Text("Аудіо")
             }
             .font(.system(.subheadline, design: .rounded, weight: .medium))
             .padding(.horizontal, 14)
@@ -16,6 +16,6 @@ struct AudioButton: View {
         .buttonStyle(.glass)
         .disabled(true)
         .opacity(0.5)
-        .accessibilityLabel("Audio pronunciation - coming soon")
+        .accessibilityLabel("Аудіо вимова — незабаром")
     }
 }

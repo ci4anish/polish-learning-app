@@ -34,8 +34,8 @@ export type DeclensionEntry = {
 };
 
 export type ExampleEntry = {
-  polish: string;
-  english: string;
+  source: string;
+  target: string;
 };
 
 export type ExplainContent = {

@@ -29,7 +29,7 @@ struct PreviewerView: View {
                 translationOverlay(result: result)
             }
         }
-        .navigationTitle("Preview")
+        .navigationTitle("Перегляд")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showGrammarDetail) {
             if let result = explanationResult {

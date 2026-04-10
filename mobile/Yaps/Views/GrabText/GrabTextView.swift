@@ -28,7 +28,7 @@ struct GrabTextView: View {
             actionButtons
                 .padding(.bottom, 32)
         }
-        .navigationTitle("Yaps")
+        .navigationTitle("Яппс")
         .fullScreenCover(isPresented: $showCamera) {
             CameraView { image in
                 processImage(image)
@@ -64,12 +64,12 @@ struct GrabTextView: View {
             languageBadge
 
             VStack(spacing: 8) {
-                Text("Grab Text")
+                Text("Сканувати текст")
                     .font(YapsTheme.titleFont)
 
                 if let lang = selectedLanguage {
                     HStack(spacing: 6) {
-                        Text("Content in **\(lang.name)**")
+                        Text("Мова: **\(lang.nativeName)**")
                             .font(YapsTheme.bodyFont)
                             .foregroundStyle(.secondary)
 
@@ -87,7 +87,7 @@ struct GrabTextView: View {
                     }
                     .transition(.blurReplace)
                 } else {
-                    Text("Tap the icon to set content language")
+                    Text("Натисніть на іконку, щоб обрати мову тексту")
                         .font(YapsTheme.bodyFont)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -159,7 +159,7 @@ struct GrabTextView: View {
                     YapsTheme.hapticTap()
                     showCamera = true
                 } label: {
-                    Label("Scan Text", systemImage: "camera.fill")
+                    Label("Сканувати", systemImage: "camera.fill")
                         .font(YapsTheme.headlineFont)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
@@ -172,7 +172,7 @@ struct GrabTextView: View {
                 useSampleText()
             } label: {
                 Label(
-                    isCameraAvailable ? "Use Sample Page" : "Try Sample Page",
+                    isCameraAvailable ? "Використати зразок" : "Спробувати зразок",
                     systemImage: "doc.text.image.fill"
                 )
                 .font(YapsTheme.headlineFont)
@@ -239,7 +239,7 @@ struct ProcessingOverlay: View {
                         }
                     }
 
-                Text("Analyzing text…")
+                Text("Аналізую текст…")
                     .font(YapsTheme.headlineFont)
             }
             .padding(32)

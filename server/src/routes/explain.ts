@@ -8,6 +8,7 @@ explain.post("/", async (c) => {
   const body = await c.req.json<{
     text?: string;
     sourceLanguage?: string;
+    targetLanguage?: string;
     context?: string;
   }>();
 
@@ -16,7 +17,8 @@ explain.post("/", async (c) => {
   }
 
   const sourceLanguage = body.sourceLanguage ?? "Polish";
-  const result = await performExplain(body.text, sourceLanguage, c.env, body.context);
+  const targetLanguage = body.targetLanguage ?? "Ukrainian";
+  const result = await performExplain(body.text, sourceLanguage, targetLanguage, c.env, body.context);
 
   return c.json(result, result.success ? 200 : 502);
 });

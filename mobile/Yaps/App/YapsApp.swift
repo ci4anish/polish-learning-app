@@ -13,13 +13,13 @@ struct YapsApp: App {
 struct ContentView: View {
     var body: some View {
         TabView {
-            Tab("Scan", systemImage: "text.viewfinder") {
+            Tab("Сканувати", systemImage: "text.viewfinder") {
                 NavigationStack {
                     GrabTextView()
                 }
             }
 
-            Tab("History", systemImage: "clock") {
+            Tab("Історія", systemImage: "clock") {
                 NavigationStack {
                     HistoryPlaceholderView()
                 }
@@ -31,10 +31,10 @@ struct ContentView: View {
 struct HistoryPlaceholderView: View {
     var body: some View {
         ContentUnavailableView(
-            "No History Yet",
+            "Поки що порожньо",
             systemImage: "clock.badge.questionmark",
-            description: Text("Your scanned texts will appear here")
+            description: Text("Тут зʼявляться ваші відскановані тексти")
         )
-        .navigationTitle("History")
+        .navigationTitle("Історія")
     }
 }

@@ -21,7 +21,7 @@ struct GrammarDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button("Готово") { dismiss() }
                 }
             }
         }
@@ -31,7 +31,7 @@ struct GrammarDetailView: View {
 
     private var translationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("Translation", icon: "character.book.closed.fill")
+            sectionHeader("Переклад", icon: "character.book.closed.fill")
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(result.translation)
@@ -55,7 +55,7 @@ struct GrammarDetailView: View {
 
     private func declensionSection(_ entries: [ExplanationResult.DeclensionEntry]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("Declension Table", icon: "tablecells")
+            sectionHeader("Відмінювання", icon: "tablecells")
 
             VStack(spacing: 0) {
                 headerRow
@@ -69,11 +69,11 @@ struct GrammarDetailView: View {
 
     private var headerRow: some View {
         HStack(spacing: 0) {
-            Text("Case")
+            Text("Відмінок")
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Text("Singular")
+            Text("Однина")
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Text("Plural")
+            Text("Множина")
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .font(.system(.caption, design: .rounded, weight: .bold))
@@ -102,14 +102,14 @@ struct GrammarDetailView: View {
 
     private var examplesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("Examples", icon: "text.quote")
+            sectionHeader("Приклади", icon: "text.quote")
 
             VStack(spacing: 10) {
                 ForEach(result.examples) { example in
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(example.polish)
+                        Text(example.source)
                             .font(.system(.body, design: .rounded, weight: .medium))
-                        Text(example.english)
+                        Text(example.target)
                             .font(.system(.subheadline, design: .rounded))
                             .foregroundStyle(.secondary)
                     }
@@ -123,7 +123,7 @@ struct GrammarDetailView: View {
 
     private var audioSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("Pronunciation", icon: "speaker.wave.2.fill")
+            sectionHeader("Вимова", icon: "speaker.wave.2.fill")
 
             AudioButton()
                 .frame(maxWidth: .infinity)

@@ -21,8 +21,8 @@ struct ExplainResponse: Codable, Sendable {
         }
 
         struct ExampleEntry: Codable, Sendable {
-            let polish: String
-            let english: String
+            let source: String
+            let target: String
         }
     }
 }
@@ -45,9 +45,9 @@ struct ExplanationResult: Identifiable, Sendable {
     }
 
     struct Example: Identifiable, Sendable {
-        var id: String { polish }
-        let polish: String
-        let english: String
+        var id: String { source }
+        let source: String
+        let target: String
     }
 
     init(from response: ExplainResponse.ExplainContent) {
@@ -60,7 +60,7 @@ struct ExplanationResult: Identifiable, Sendable {
             DeclensionEntry(caseName: $0.caseName, singular: $0.singular, plural: $0.plural)
         }
         self.examples = response.examples.map {
-            Example(polish: $0.polish, english: $0.english)
+            Example(source: $0.source, target: $0.target)
         }
     }
 }

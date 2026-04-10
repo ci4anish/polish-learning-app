@@ -40,7 +40,7 @@ struct TranslationPopup: View {
                     .foregroundStyle(.tint)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Translation")
+                    Text("Переклад")
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(.secondary)
 
@@ -68,7 +68,7 @@ struct TranslationPopup: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "text.book.closed")
-                        Text("Grammar Details")
+                        Text("Граматика")
                         Image(systemName: "chevron.right")
                             .font(.caption2)
                     }

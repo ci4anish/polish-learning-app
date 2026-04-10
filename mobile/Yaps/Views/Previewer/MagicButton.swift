@@ -26,7 +26,7 @@ struct MagicButton: View {
                     .frame(width: 20, height: 20)
 
                 if state == .thinking {
-                    Text("Thinking…")
+                    Text("Думаю…")
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .transition(.opacity)
                 }

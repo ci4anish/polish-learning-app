@@ -63,7 +63,12 @@ actor APIService {
         return OCRResult(id: UUID(), content: decoded.content!)
     }
 
-    func explain(text: String, sourceLanguage: String = "Polish", context: String? = nil) async throws -> ExplanationResult {
+    func explain(
+        text: String,
+        sourceLanguage: String = "Polish",
+        targetLanguage: String = "Ukrainian",
+        context: String? = nil
+    ) async throws -> ExplanationResult {
         let url = URL(string: "\(baseURL)/api/explain")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -73,11 +78,12 @@ actor APIService {
         struct ExplainRequest: Encodable {
             let text: String
             let sourceLanguage: String
+            let targetLanguage: String
             let context: String?
         }
 
         request.httpBody = try JSONEncoder().encode(
-            ExplainRequest(text: text, sourceLanguage: sourceLanguage, context: context)
+            ExplainRequest(text: text, sourceLanguage: sourceLanguage, targetLanguage: targetLanguage, context: context)
         )
 
         let (data, response): (Data, URLResponse)

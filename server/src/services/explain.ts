@@ -6,27 +6,29 @@ import type { Bindings, ExplainResult } from "../types";
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
 const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
-const ExplainSchema = z.object({
-  translation: z.string().describe("English translation of the selected text"),
-  partOfSpeech: z.string().describe("Part of speech in English with native term in parentheses, e.g. 'Adjective (Przymiotnik)'"),
-  gender: z.string().nullable().describe("Grammatical gender if applicable, e.g. 'Masculine', 'Feminine', 'Neuter', or null"),
-  grammaticalCase: z.string().nullable().describe("Grammatical case the word appears in within the context, or null"),
-  declension: z.array(
-    z.object({
-      caseName: z.string().describe("Grammatical case name, e.g. 'Nominative', 'Genitive'"),
-      singular: z.string().describe("Singular form for this case"),
-      plural: z.string().describe("Plural form for this case"),
-    }),
-  ).nullable().describe("Declension table for nouns/adjectives, conjugation table for verbs, or null if not applicable"),
-  examples: z.array(
-    z.object({
-      polish: z.string().describe("Example sentence in the source language"),
-      english: z.string().describe("English translation of the example"),
-    }),
-  ).describe("2-3 example sentences using the word/phrase"),
-});
+function buildSchema(targetLanguage: string) {
+  return z.object({
+    translation: z.string().describe(`Translation of the selected text into ${targetLanguage}`),
+    partOfSpeech: z.string().describe(`Part of speech in ${targetLanguage} with the native grammar term in parentheses, e.g. 'Прикметник (Przymiotnik)'`),
+    gender: z.string().nullable().describe(`Grammatical gender in ${targetLanguage} if applicable, e.g. 'Чоловічий', 'Жіночий', 'Середній', or null`),
+    grammaticalCase: z.string().nullable().describe(`Grammatical case the word appears in within the context, in ${targetLanguage}, or null`),
+    declension: z.array(
+      z.object({
+        caseName: z.string().describe(`Grammatical case name in ${targetLanguage}, e.g. 'Називний', 'Родовий'`),
+        singular: z.string().describe("Singular form for this case"),
+        plural: z.string().describe("Plural form for this case"),
+      }),
+    ).nullable().describe("Declension table for nouns/adjectives, conjugation table for verbs, or null if not applicable"),
+    examples: z.array(
+      z.object({
+        source: z.string().describe("Example sentence in the source language"),
+        target: z.string().describe(`Translation of the example into ${targetLanguage}`),
+      }),
+    ).describe("2-3 example sentences using the word/phrase"),
+  });
+}
 
-function buildPrompt(text: string, sourceLanguage: string, context?: string): string {
+function buildPrompt(text: string, sourceLanguage: string, targetLanguage: string, context?: string): string {
   const parts = [
     `Explain the following ${sourceLanguage} text for a language learner: "${text}"`,
   ];
@@ -37,12 +39,12 @@ function buildPrompt(text: string, sourceLanguage: string, context?: string): st
 
   parts.push(
     "",
-    "Provide:",
-    "- Accurate English translation",
-    "- Part of speech with the native grammar term",
-    "- Gender and grammatical case if applicable",
+    `Provide all explanations in ${targetLanguage}:`,
+    `- Accurate translation into ${targetLanguage}`,
+    "- Part of speech with the native grammar term in parentheses",
+    `- Gender and grammatical case in ${targetLanguage} if applicable`,
     "- Full declension or conjugation table if the word is a noun, adjective, or verb",
-    "- 2-3 natural example sentences with translations",
+    `- 2-3 natural example sentences with ${targetLanguage} translations`,
   );
 
   return parts.join("\n");
@@ -51,6 +53,7 @@ function buildPrompt(text: string, sourceLanguage: string, context?: string): st
 export async function performExplain(
   text: string,
   sourceLanguage: string,
+  targetLanguage: string,
   env: Bindings,
   context?: string,
 ): Promise<ExplainResult> {
@@ -72,11 +75,11 @@ export async function performExplain(
     const response = await client.chat.completions.parse({
       model: GEMINI_MODEL,
       max_tokens: 4096,
-      response_format: zodResponseFormat(ExplainSchema, "explanation"),
+      response_format: zodResponseFormat(buildSchema(targetLanguage), "explanation"),
       messages: [
         {
           role: "user",
-          content: buildPrompt(text, sourceLanguage, context),
+          content: buildPrompt(text, sourceLanguage, targetLanguage, context),
         },
       ],
     });
@@ -112,7 +115,7 @@ export async function performExplain(
         gender: parsed.gender,
         grammaticalCase: parsed.grammaticalCase,
         declension: parsed.declension,
-        examples: parsed.examples,
+        examples: parsed.examples.map((e) => ({ source: e.source, target: e.target })),
       },
       provider: "gemini",
       model: GEMINI_MODEL,

@@ -43,12 +43,12 @@ struct LanguageSelectorSheet: View {
                 .listRowBackground(Color.clear)
             }
             .listStyle(.plain)
-            .searchable(text: $searchText, prompt: "Search languages")
-            .navigationTitle("Content Language")
+            .searchable(text: $searchText, prompt: "Пошук мови")
+            .navigationTitle("Мова тексту")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Скасувати") { dismiss() }
                 }
             }
         }
