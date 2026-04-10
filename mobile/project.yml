@@ -4,12 +4,24 @@ options:
   deploymentTarget:
     iOS: "26.0"
   generateEmptyDirectories: true
+
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: 2.0.0
+
 targets:
   Yaps:
     type: application
     platform: iOS
     sources:
       - path: Yaps
+    configFiles:
+      Debug: Configs/Config.xcconfig
+      Release: Configs/Config.xcconfig
+    dependencies:
+      - package: Supabase
+        product: Supabase
     settings:
       base:
         INFOPLIST_FILE: Yaps/Info.plist

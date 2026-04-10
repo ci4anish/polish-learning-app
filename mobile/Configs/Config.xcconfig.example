@@ -1,0 +1,9 @@
+// Copy this file to Config.xcconfig and fill in your values.
+// Config.xcconfig is gitignored — never commit it.
+//
+// NOTE: Don't use // in values (xcconfig treats it as a comment).
+// URLs are split into host-only here; the scheme is added in AppConfig.swift.
+
+SUPABASE_HOST = your-project-ref.supabase.co
+SUPABASE_PUBLISHABLE_KEY = sb_publishable_your_key_here
+API_BASE_URL = http:$()/$()/localhost:8787

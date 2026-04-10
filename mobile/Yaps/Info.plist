@@ -22,6 +22,23 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>SupabaseHost</key>
+	<string>$(SUPABASE_HOST)</string>
+	<key>SupabasePublishableKey</key>
+	<string>$(SUPABASE_PUBLISHABLE_KEY)</string>
+	<key>APIBaseURL</key>
+	<string>$(API_BASE_URL)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.yaps.app</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.yaps.app</string>
+		</dict>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Yaps needs camera access to scan Polish text from photos</string>
 	<key>UILaunchScreen</key>

@@ -3,11 +3,7 @@ import Foundation
 actor APIService {
     static let shared = APIService()
 
-    #if targetEnvironment(simulator)
-    private let baseURL = "http://localhost:8787"
-    #else
-    private let baseURL = "http://localhost:8787"
-    #endif
+    private let baseURL = AppConfig.apiBaseURL
 
     enum APIError: LocalizedError {
         case invalidResponse
@@ -28,6 +24,8 @@ actor APIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.timeoutInterval = 30
+
+        await attachAuthHeader(to: &request)
 
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
@@ -75,6 +73,8 @@ actor APIService {
         request.timeoutInterval = 30
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
+        await attachAuthHeader(to: &request)
+
         struct ExplainRequest: Encodable {
             let text: String
             let sourceLanguage: String
@@ -115,6 +115,8 @@ actor APIService {
         request.timeoutInterval = 30
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
+        await attachAuthHeader(to: &request)
+
         struct AudioRequest: Encodable {
             let text: String
             let language: String
@@ -139,9 +141,38 @@ actor APIService {
         return data
     }
 
+    func fetchOCRHistory() async throws -> [OCRHistoryItem] {
+        let url = URL(string: "\(baseURL)/api/history/ocr")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 15
+
+        await attachAuthHeader(to: &request)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw APIError.serverError("Failed to fetch history")
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let decoded = try decoder.decode(OCRHistoryResponse.self, from: data)
+        return decoded.data ?? []
+    }
+
     nonisolated func loadSampleImage() -> Data? {
         guard let url = Bundle.main.url(forResource: "sample-page", withExtension: "jpg") else { return nil }
         return try? Data(contentsOf: url)
+    }
+
+    // MARK: - Auth
+
+    private func attachAuthHeader(to request: inout URLRequest) async {
+        let token = await MainActor.run { AuthService.shared.accessToken }
+        if let token {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
     }
 }
 

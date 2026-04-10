@@ -2,15 +2,30 @@ import SwiftUI
 
 @main
 struct YapsApp: App {
+    @State private var auth = AuthService.shared
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .tint(Color.accentColor)
+            Group {
+                if auth.isAuthenticated {
+                    ContentView()
+                } else {
+                    LoginView()
+                }
+            }
+            .environment(auth)
+            .tint(Color.accentColor)
+            .animation(.default, value: auth.isAuthenticated)
+            .onOpenURL { url in
+                Task { await auth.handleDeepLink(url) }
+            }
         }
     }
 }
 
 struct ContentView: View {
+    @Environment(AuthService.self) private var auth
+
     var body: some View {
         TabView {
             Tab("Сканувати", systemImage: "text.viewfinder") {
@@ -24,17 +39,146 @@ struct ContentView: View {
                     HistoryPlaceholderView()
                 }
             }
+
+            Tab("Профіль", systemImage: "person.circle") {
+                NavigationStack {
+                    ProfileView()
+                }
+            }
         }
     }
 }
 
 struct HistoryPlaceholderView: View {
+    @State private var items: [OCRHistoryItem] = []
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f
+    }()
+
     var body: some View {
-        ContentUnavailableView(
-            "Поки що порожньо",
-            systemImage: "clock.badge.questionmark",
-            description: Text("Тут зʼявляться ваші відскановані тексти")
-        )
+        Group {
+            if isLoading {
+                ProgressView()
+            } else if let error = errorMessage {
+                ContentUnavailableView("Помилка", systemImage: "exclamationmark.triangle", description: Text(error))
+            } else if items.isEmpty {
+                ContentUnavailableView(
+                    "Поки що порожньо",
+                    systemImage: "clock.badge.questionmark",
+                    description: Text("Тут зʼявляться ваші відскановані тексти")
+                )
+            } else {
+                List(items) { item in
+                    NavigationLink(destination: OCRHistoryDetailView(item: item)) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(item.preview)
+                                .font(.body)
+                                .lineLimit(3)
+                            HStack {
+                                Label(item.detectedLanguage.uppercased(), systemImage: "globe")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                Text(Self.dateFormatter.string(from: item.createdAt))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+        }
         .navigationTitle("Історія")
+        .task { await loadHistory() }
+        .refreshable { await loadHistory() }
+    }
+
+    private func loadHistory() async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+        do {
+            items = try await APIService.shared.fetchOCRHistory()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+}
+
+struct ProfileView: View {
+    @Environment(AuthService.self) private var auth
+
+    var body: some View {
+        List {
+            if let user = auth.session?.user {
+                Section("Акаунт") {
+                    if let email = user.email {
+                        LabeledContent("Email", value: email)
+                    }
+                    if let name = user.userMetadata["full_name"]?.stringValue {
+                        LabeledContent("Імʼя", value: name)
+                    }
+                    LabeledContent("ID") {
+                        Text(user.id.uuidString)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            Section {
+                Button(role: .destructive) {
+                    Task { await auth.signOut() }
+                } label: {
+                    Label("Вийти", systemImage: "rectangle.portrait.and.arrow.right")
+                }
+            }
+        }
+        .navigationTitle("Профіль")
+    }
+}
+
+struct OCRHistoryDetailView: View {
+    let item: OCRHistoryItem
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .long
+        f.timeStyle = .short
+        return f
+    }()
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Label(item.detectedLanguage.uppercased(), systemImage: "globe")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(Self.dateFormatter.string(from: item.createdAt))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Divider()
+
+                ForEach(item.blocks) { block in
+                    Text(block.text)
+                        .font(block.type == .heading ? .headline : .body)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Деталі")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

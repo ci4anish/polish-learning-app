@@ -167,6 +167,7 @@ struct GrabTextView: View {
                 .buttonStyle(.glassProminent)
             }
 
+            #if targetEnvironment(simulator)
             Button {
                 YapsTheme.hapticTap()
                 useSampleText()
@@ -180,6 +181,7 @@ struct GrabTextView: View {
                 .padding(.vertical, 14)
             }
             .buttonStyle(.glass)
+            #endif
         }
         .padding(.horizontal, 32)
     }
