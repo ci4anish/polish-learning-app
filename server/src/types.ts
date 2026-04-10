@@ -1,7 +1,5 @@
 export type Bindings = {
-  DEEPINFRA_API_KEY: string;
-  NOVITA_API_KEY: string;
-  PROVIDER_ORDER: string;
+  GEMINI_API_KEY: string;
 };
 
 export type OcrResult = {
