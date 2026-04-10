@@ -7,12 +7,24 @@ struct TextSelection: Equatable {
     let rect: CGRect
 }
 
+/// UITextView subclass that suppresses the default edit menu (Copy/Paste/Select All)
+/// so only the custom AI magic button appears on selection.
+private class MenuFreeTextView: UITextView {
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        false
+    }
+
+    override func editMenu(for textRange: UITextRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
+        nil
+    }
+}
+
 struct SelectableTextView: UIViewRepresentable {
     let text: String
     let onSelectionChange: (TextSelection?) -> Void
 
     func makeUIView(context: Context) -> UITextView {
-        let textView = UITextView()
+        let textView = MenuFreeTextView()
         textView.isEditable = false
         textView.isSelectable = true
         textView.backgroundColor = .clear

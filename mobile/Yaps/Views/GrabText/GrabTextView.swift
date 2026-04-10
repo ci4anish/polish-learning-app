@@ -9,6 +9,8 @@ struct GrabTextView: View {
     @State private var scanCount = 0
     @State private var heroScale: CGFloat = 0.8
     @State private var heroOpacity: CGFloat = 0
+    @State private var selectedLanguage: ContentLanguage?
+    @State private var showLanguagePicker = false
 
     private var isCameraAvailable: Bool {
         UIImagePickerController.isSourceTypeAvailable(.camera)
@@ -43,6 +45,13 @@ struct GrabTextView: View {
                 ProcessingOverlay()
             }
         }
+        .sheet(isPresented: $showLanguagePicker) {
+            LanguageSelectorSheet { language in
+                withAnimation(.spring(duration: 0.5, bounce: 0.3)) {
+                    selectedLanguage = language
+                }
+            }
+        }
         .onAppear {
             withAnimation(.spring(duration: 0.8, bounce: 0.4)) {
                 heroScale = 1.0
@@ -53,25 +62,38 @@ struct GrabTextView: View {
 
     private var heroSection: some View {
         VStack(spacing: 20) {
-            ZStack {
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .frame(width: 130, height: 130)
-
-                Image(systemName: "text.viewfinder")
-                    .font(.system(size: 52, weight: .light))
-                    .foregroundStyle(.tint)
-                    .symbolEffect(.pulse, options: .repeating.speed(0.5))
-            }
+            languageBadge
 
             VStack(spacing: 8) {
                 Text("Grab Text")
                     .font(YapsTheme.titleFont)
 
-                Text("Take a photo of Polish text\nto start learning")
-                    .font(YapsTheme.bodyFont)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+                if let lang = selectedLanguage {
+                    HStack(spacing: 6) {
+                        Text("Content in **\(lang.name)**")
+                            .font(YapsTheme.bodyFont)
+                            .foregroundStyle(.secondary)
+
+                        Button {
+                            withAnimation(.spring(duration: 0.4, bounce: 0.3)) {
+                                selectedLanguage = nil
+                            }
+                            YapsTheme.hapticTap()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(.tertiary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .transition(.blurReplace)
+                } else {
+                    Text("Tap the icon to set content language")
+                        .font(YapsTheme.bodyFont)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .transition(.blurReplace)
+                }
             }
 
             if scanCount > 0 {
@@ -81,6 +103,60 @@ struct GrabTextView: View {
                     .transition(.scale.combined(with: .opacity))
             }
         }
+    }
+
+    private var languageBadge: some View {
+        Button {
+            YapsTheme.hapticTap()
+            showLanguagePicker = true
+        } label: {
+            ZStack {
+                if let lang = selectedLanguage {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: lang.flagColors.map { $0.opacity(0.25) },
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 130, height: 130)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(
+                                    LinearGradient(
+                                        colors: lang.flagColors.map { $0.opacity(0.5) },
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 2.5
+                                )
+                        )
+                        .transition(.scale.combined(with: .opacity))
+                } else {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 130, height: 130)
+                        .transition(.scale.combined(with: .opacity))
+                }
+
+                VStack(spacing: 6) {
+                    Image(systemName: selectedLanguage != nil ? "character.book.closed.fill" : "text.viewfinder")
+                        .font(.system(size: 42, weight: .light))
+                        .foregroundStyle(.tint)
+                        .contentTransition(.symbolEffect(.replace))
+
+                    if let lang = selectedLanguage {
+                        Text(lang.id.uppercased())
+                            .font(.system(.caption2, design: .rounded, weight: .bold))
+                            .foregroundStyle(.tint)
+                            .transition(.blurReplace)
+                    }
+                }
+            }
+        }
+        .buttonStyle(LanguageBadgeButtonStyle())
+        .animation(.spring(duration: 0.5, bounce: 0.3), value: selectedLanguage)
     }
 
     private var actionButtons: some View {
@@ -132,6 +208,14 @@ struct GrabTextView: View {
                 isProcessing = false
             }
         }
+    }
+}
+
+struct LanguageBadgeButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
+            .animation(.spring(duration: 0.3, bounce: 0.4), value: configuration.isPressed)
     }
 }
 
