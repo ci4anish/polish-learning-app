@@ -2,7 +2,6 @@ export type Bindings = {
   GEMINI_API_KEY: string;
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
-  SUPABASE_JWT_SECRET: string;
 };
 
 export type Variables = {

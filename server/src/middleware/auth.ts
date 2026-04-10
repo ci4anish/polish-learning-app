@@ -1,6 +1,17 @@
 import { createMiddleware } from "hono/factory";
-import { jwtVerify } from "jose";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 import type { Bindings, Variables } from "../types";
+
+let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
+
+function getJWKS(supabaseUrl: string) {
+  if (!jwks) {
+    jwks = createRemoteJWKSet(
+      new URL(`${supabaseUrl}/auth/v1/.well-known/jwks.json`),
+    );
+  }
+  return jwks;
+}
 
 /**
  * Optional auth middleware — sets `userId` in context if a valid Supabase JWT
@@ -15,8 +26,8 @@ export const authMiddleware = createMiddleware<{
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.slice(7);
     try {
-      const secret = new TextEncoder().encode(c.env.SUPABASE_JWT_SECRET);
-      const { payload } = await jwtVerify(token, secret);
+      const keySet = getJWKS(c.env.SUPABASE_URL);
+      const { payload } = await jwtVerify(token, keySet);
       if (payload.sub) {
         c.set("userId", payload.sub);
       }
