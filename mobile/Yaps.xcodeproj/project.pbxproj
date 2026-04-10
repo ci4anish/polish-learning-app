@@ -11,7 +11,6 @@
 		3584D019EE0A157E41CE46ED /* PreviewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26DBAD756BAB41765DD0DBBF /* PreviewerView.swift */; };
 		3FFB8336D642C7212B827924 /* ExplanationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1DAE82AAEEAB269001567 /* ExplanationResult.swift */; };
 		42429619B489004B3BC8F924 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7A5C53021AFB460192747EA /* APIService.swift */; };
-		576D9498EA575DA8C3C5DFB6 /* MockAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA9975330DF838685731ECC9 /* MockAPIService.swift */; };
 		5BB036706E3445A886901063 /* AudioButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4F39354FEA0DD8340312B /* AudioButton.swift */; };
 		661B58055D462E4D14C942E4 /* ContentLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CC3C1D0A968E5FE84399AC /* ContentLanguage.swift */; };
 		7B82739DF335884DB26FAF80 /* TranslationPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C72B690747959252A79133 /* TranslationPopup.swift */; };
@@ -44,7 +43,6 @@
 		B586E9514030CA2E18B1B7BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B7A5C53021AFB460192747EA /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		CE9783A93C90160769C708B0 /* sample-page.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample-page.jpg"; sourceTree = "<group>"; };
-		DA9975330DF838685731ECC9 /* MockAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAPIService.swift; sourceTree = "<group>"; };
 		F0B91D602927C76D4307CB8D /* GrammarDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrammarDetailView.swift; sourceTree = "<group>"; };
 		F506181BE5B3E3A33F74BEBE /* MagicButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagicButton.swift; sourceTree = "<group>"; };
 		FCAD7DE22C0673691627AE71 /* YapsTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapsTheme.swift; sourceTree = "<group>"; };
@@ -99,7 +97,6 @@
 			isa = PBXGroup;
 			children = (
 				B7A5C53021AFB460192747EA /* APIService.swift */,
-				DA9975330DF838685731ECC9 /* MockAPIService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -242,7 +239,6 @@
 				FBD958FD4F535139A7F9ABB7 /* GrammarDetailView.swift in Sources */,
 				A41407B5DF949C0CF8718465 /* LanguageSelectorSheet.swift in Sources */,
 				ECBDB7F49B031486852103E4 /* MagicButton.swift in Sources */,
-				576D9498EA575DA8C3C5DFB6 /* MockAPIService.swift in Sources */,
 				C228EC3617BF9056D8AE8776 /* OCRResult.swift in Sources */,
 				3584D019EE0A157E41CE46ED /* PreviewerView.swift in Sources */,
 				7D79664891F662C9FB090AE0 /* SelectableTextView.swift in Sources */,

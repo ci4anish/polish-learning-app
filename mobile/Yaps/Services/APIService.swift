@@ -63,6 +63,43 @@ actor APIService {
         return OCRResult(id: UUID(), content: decoded.content!)
     }
 
+    func explain(text: String, sourceLanguage: String = "Polish", context: String? = nil) async throws -> ExplanationResult {
+        let url = URL(string: "\(baseURL)/api/explain")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 30
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        struct ExplainRequest: Encodable {
+            let text: String
+            let sourceLanguage: String
+            let context: String?
+        }
+
+        request.httpBody = try JSONEncoder().encode(
+            ExplainRequest(text: text, sourceLanguage: sourceLanguage, context: context)
+        )
+
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+
+        guard let http = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+
+        let decoded = try JSONDecoder().decode(ExplainResponse.self, from: data)
+
+        guard decoded.success, let content = decoded.explanation else {
+            throw APIError.serverError(decoded.error ?? "Explain failed (HTTP \(http.statusCode))")
+        }
+
+        return ExplanationResult(from: content)
+    }
+
     nonisolated func loadSampleImage() -> Data? {
         guard let url = Bundle.main.url(forResource: "sample-page", withExtension: "jpg") else { return nil }
         return try? Data(contentsOf: url)

@@ -6,10 +6,9 @@ struct GrabTextView: View {
     @State private var ocrResult: OCRResult?
     @State private var isProcessing = false
     @State private var navigateToPreviewer = false
-    @State private var scanCount = 0
     @State private var heroScale: CGFloat = 0.8
     @State private var heroOpacity: CGFloat = 0
-    @State private var selectedLanguage: ContentLanguage?
+    @State private var selectedLanguage: ContentLanguage? = ContentLanguage.all.first
     @State private var showLanguagePicker = false
 
     private var isCameraAvailable: Bool {
@@ -96,12 +95,6 @@ struct GrabTextView: View {
                 }
             }
 
-            if scanCount > 0 {
-                Label("\(scanCount) text\(scanCount == 1 ? "" : "s") scanned", systemImage: "checkmark.circle.fill")
-                    .font(YapsTheme.captionFont)
-                    .foregroundStyle(.secondary)
-                    .transition(.scale.combined(with: .opacity))
-            }
         }
     }
 
@@ -197,36 +190,23 @@ struct GrabTextView: View {
     }
 
     private func processImage(_ imageData: Data?) {
+        guard let data = imageData else { return }
         isProcessing = true
         Task {
             do {
-                if let data = imageData {
-                    let result = try await APIService.shared.performOCR(
-                        imageData: data,
-                        languageHint: selectedLanguage?.id
-                    )
-                    ocrResult = result
-                    if let lang = ContentLanguage.all.first(where: { $0.id == result.detectedLanguage }) {
-                        withAnimation { selectedLanguage = lang }
-                    }
-                } else {
-                    let result = try await MockAPIService.shared.performOCR(image: nil)
-                    ocrResult = result
+                let result = try await APIService.shared.performOCR(
+                    imageData: data,
+                    languageHint: selectedLanguage?.id
+                )
+                ocrResult = result
+                if let lang = ContentLanguage.all.first(where: { $0.id == result.detectedLanguage }) {
+                    withAnimation { selectedLanguage = lang }
                 }
                 isProcessing = false
-                withAnimation { scanCount += 1 }
                 navigateToPreviewer = true
             } catch {
-                print("[GrabText] API failed, falling back to mock:", error.localizedDescription)
-                do {
-                    let result = try await MockAPIService.shared.performOCR(image: imageData)
-                    ocrResult = result
-                    isProcessing = false
-                    withAnimation { scanCount += 1 }
-                    navigateToPreviewer = true
-                } catch {
-                    isProcessing = false
-                }
+                print("[GrabText] OCR failed:", error.localizedDescription)
+                isProcessing = false
             }
         }
     }

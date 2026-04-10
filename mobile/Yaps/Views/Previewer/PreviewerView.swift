@@ -76,13 +76,18 @@ struct PreviewerView: View {
         magicState = .thinking
         Task {
             do {
-                let result = try await MockAPIService.shared.explain(text: text)
+                let result = try await APIService.shared.explain(
+                    text: text,
+                    sourceLanguage: ocrResult.detectedLanguage,
+                    context: ocrResult.fullText
+                )
                 explanationResult = result
                 magicState = .done
                 YapsTheme.hapticSuccess()
                 try? await Task.sleep(for: .seconds(0.3))
                 withAnimation { showTranslationPopup = true }
             } catch {
+                print("[Previewer] explain failed:", error.localizedDescription)
                 magicState = .idle
             }
         }
