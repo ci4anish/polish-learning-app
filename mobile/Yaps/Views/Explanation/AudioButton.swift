@@ -32,7 +32,6 @@ struct AudioButton: View {
             .padding(.vertical, 10)
         }
         .buttonStyle(.glass)
-        .disabled(isLoading)
         .opacity(isLoading ? 0.6 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isLoading)
         .animation(.easeInOut(duration: 0.2), value: isPlaying)

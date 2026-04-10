@@ -148,37 +148,17 @@ struct ProfileView: View {
 struct OCRHistoryDetailView: View {
     let item: OCRHistoryItem
 
-    private static let dateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateStyle = .long
-        f.timeStyle = .short
-        return f
-    }()
+    private var ocrResult: OCRResult {
+        OCRResult(
+            id: UUID(),
+            content: OCRContent(
+                detectedLanguage: item.detectedLanguage,
+                blocks: item.blocks
+            )
+        )
+    }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Label(item.detectedLanguage.uppercased(), systemImage: "globe")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(Self.dateFormatter.string(from: item.createdAt))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Divider()
-
-                ForEach(item.blocks) { block in
-                    Text(block.text)
-                        .font(block.type == .heading ? .headline : .body)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            .padding()
-        }
-        .navigationTitle("Деталі")
-        .navigationBarTitleDisplayMode(.inline)
+        PreviewerView(ocrResult: ocrResult)
     }
 }

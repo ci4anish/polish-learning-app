@@ -22,17 +22,17 @@ struct MagicButton: View {
         }) {
             HStack(spacing: 6) {
                 icon
-                    .font(.system(size: 16, weight: .semibold))
-                    .frame(width: 20, height: 20)
+                    .font(.system(size: 20, weight: .semibold))
+                    .frame(width: 26, height: 26)
 
                 if state == .thinking {
                     Text("Думаю…")
-                        .font(.system(.caption, design: .rounded, weight: .medium))
+                        .font(.system(.subheadline, design: .rounded, weight: .medium))
                         .transition(.opacity)
                 }
             }
-            .padding(.horizontal, state == .thinking ? 16 : 12)
-            .padding(.vertical, 10)
+            .padding(.horizontal, state == .thinking ? 20 : 16)
+            .padding(.vertical, 14)
             .glassEffect(.regular, in: .capsule)
             .scaleEffect(state == .thinking ? pulseScale : 1.0)
         }
