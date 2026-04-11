@@ -33,33 +33,17 @@ export type OcrResult = {
   error?: string;
 };
 
-export type DeclensionEntry = {
-  caseName: string;
-  singular: string;
-  plural: string;
-};
-
-export type ExampleEntry = {
-  source: string;
-  target: string;
-};
-
-export type ExplainContent = {
+export type TranslateContent = {
   selectedText: string;
   translation: string;
   partOfSpeech: string;
-  gender: string | null;
-  grammaticalCase: string | null;
-  declension: DeclensionEntry[] | null;
-  examples: ExampleEntry[];
 };
 
-export type ExplainResult = {
+export type TranslateResult = {
   success: boolean;
-  explanation?: ExplainContent;
+  translation?: TranslateContent;
   provider: string;
   model: string;
-  usage?: UsageInfo;
   error?: string;
 };
 

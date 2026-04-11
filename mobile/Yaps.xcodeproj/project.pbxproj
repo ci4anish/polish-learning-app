@@ -28,7 +28,6 @@
 		ECBDB7F49B031486852103E4 /* MagicButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F506181BE5B3E3A33F74BEBE /* MagicButton.swift */; };
 		F0F60D91009D4CC7E066BBF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 391EADC11CB3DA038B06D0B8 /* Assets.xcassets */; };
 		F2C4C6A6CDD5313BE83F2B42 /* YapsTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCAD7DE22C0673691627AE71 /* YapsTheme.swift */; };
-		FBD958FD4F535139A7F9ABB7 /* GrammarDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B91D602927C76D4307CB8D /* GrammarDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,7 +37,7 @@
 		34A569314CD9D3FD3E659E79 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		391EADC11CB3DA038B06D0B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4668EB4DEB0820AA945BB405 /* OCRResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRResult.swift; sourceTree = "<group>"; };
-		4D4F747C2FE41CE57EBF2893 /* Yaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D4F747C2FE41CE57EBF2893 /* Yaps.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Yaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64649C389244124560F7EFC6 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		66CC3C1D0A968E5FE84399AC /* ContentLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLanguage.swift; sourceTree = "<group>"; };
 		674FCD22BB88FBD6D023E555 /* YapsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapsApp.swift; sourceTree = "<group>"; };
@@ -53,7 +52,6 @@
 		B7A5C53021AFB460192747EA /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		C804D86DBFD207D26119F5D4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		CE9783A93C90160769C708B0 /* sample-page.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample-page.jpg"; sourceTree = "<group>"; };
-		F0B91D602927C76D4307CB8D /* GrammarDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrammarDetailView.swift; sourceTree = "<group>"; };
 		F506181BE5B3E3A33F74BEBE /* MagicButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagicButton.swift; sourceTree = "<group>"; };
 		FCAD7DE22C0673691627AE71 /* YapsTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapsTheme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -98,7 +96,6 @@
 			isa = PBXGroup;
 			children = (
 				84C4F39354FEA0DD8340312B /* AudioButton.swift */,
-				F0B91D602927C76D4307CB8D /* GrammarDetailView.swift */,
 				90C72B690747959252A79133 /* TranslationPopup.swift */,
 			);
 			path = Explanation;
@@ -243,6 +240,8 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = AFBDEC7007BFB995643E2E46 /* Build configuration list for PBXProject "Yaps" */;
 			developmentRegion = en;
@@ -291,7 +290,6 @@
 				661B58055D462E4D14C942E4 /* ContentLanguage.swift in Sources */,
 				3FFB8336D642C7212B827924 /* ExplanationResult.swift in Sources */,
 				29665FFFC60A4840E3A457E9 /* GrabTextView.swift in Sources */,
-				FBD958FD4F535139A7F9ABB7 /* GrammarDetailView.swift in Sources */,
 				9A4ACB6745B1A92CEF13760E /* HistoryItem.swift in Sources */,
 				A41407B5DF949C0CF8718465 /* LanguageSelectorSheet.swift in Sources */,
 				EA4AA42A8A60B4F95F6686F5 /* LoginView.swift in Sources */,
@@ -372,7 +370,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3MFU8G98MP;
 				INFOPLIST_FILE = Yaps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -457,7 +454,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3MFU8G98MP;
 				INFOPLIST_FILE = Yaps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

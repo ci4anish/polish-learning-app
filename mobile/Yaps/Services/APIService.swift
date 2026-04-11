@@ -61,49 +61,30 @@ actor APIService {
         return OCRResult(id: UUID(), content: decoded.content!)
     }
 
-    func explain(
-        text: String,
-        sourceLanguage: String = "Polish",
-        targetLanguage: String = "Ukrainian",
-        context: String? = nil
-    ) async throws -> ExplanationResult {
-        let url = URL(string: "\(baseURL)/api/explain")!
+    func translate(text: String, context: String? = nil) async throws -> TranslationResult {
+        struct Body: Encodable { let text: String; let context: String? }
+        let data = try await post(path: "/api/translate", body: Body(text: text, context: context))
+        let decoded = try JSONDecoder().decode(TranslateResponse.self, from: data)
+        guard decoded.success, let content = decoded.translation else {
+            throw APIError.serverError(decoded.error ?? "Translation failed")
+        }
+        return TranslationResult(from: content)
+    }
+
+    private func post<B: Encodable>(path: String, body: B) async throws -> Data {
+        let url = URL(string: "\(baseURL)\(path)")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.timeoutInterval = 30
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
         await attachAuthHeader(to: &request)
-
-        struct ExplainRequest: Encodable {
-            let text: String
-            let sourceLanguage: String
-            let targetLanguage: String
-            let context: String?
-        }
-
-        request.httpBody = try JSONEncoder().encode(
-            ExplainRequest(text: text, sourceLanguage: sourceLanguage, targetLanguage: targetLanguage, context: context)
-        )
-
-        let (data, response): (Data, URLResponse)
+        request.httpBody = try JSONEncoder().encode(body)
         do {
-            (data, response) = try await URLSession.shared.data(for: request)
+            let (data, _) = try await URLSession.shared.data(for: request)
+            return data
         } catch {
             throw APIError.networkError(error)
         }
-
-        guard let http = response as? HTTPURLResponse else {
-            throw APIError.invalidResponse
-        }
-
-        let decoded = try JSONDecoder().decode(ExplainResponse.self, from: data)
-
-        guard decoded.success, let content = decoded.explanation else {
-            throw APIError.serverError(decoded.error ?? "Explain failed (HTTP \(http.statusCode))")
-        }
-
-        return ExplanationResult(from: content)
     }
 
     private struct ErrorResponse: Decodable { let error: String? }

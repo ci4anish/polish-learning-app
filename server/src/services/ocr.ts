@@ -2,9 +2,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import type { Bindings, OcrResult } from "../types";
-
-const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
+import { GEMINI_BASE_URL, GEMINI_MODEL } from "../lib/constants";
 
 const OcrSchema = z.object({
   detectedLanguage: z.string().describe("ISO 639-1 language code of the primary text language"),

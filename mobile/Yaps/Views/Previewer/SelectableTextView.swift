@@ -1,6 +1,33 @@
 import SwiftUI
 import UIKit
 
+private extension NSString {
+    func wordRange(for range: NSRange) -> NSRange {
+        let start = rangeOfWord(at: range.location).location
+        let endIndex = range.location + range.length
+        let endWord = rangeOfWord(at: max(endIndex - 1, start))
+        let end = endWord.location + endWord.length
+        return NSRange(location: start, length: end - start)
+    }
+
+    private func rangeOfWord(at index: Int) -> NSRange {
+        let clamped = max(0, min(index, length - 1))
+        var start = clamped
+        var end = clamped
+
+        while start > 0 && isWordChar(at: start - 1) { start -= 1 }
+        while end < length && isWordChar(at: end) { end += 1 }
+
+        return NSRange(location: start, length: max(end - start, 1))
+    }
+
+    private func isWordChar(at index: Int) -> Bool {
+        let c = character(at: index)
+        guard let scalar = Unicode.Scalar(c) else { return false }
+        return CharacterSet.letters.contains(scalar) || CharacterSet(charactersIn: "-'").contains(scalar)
+    }
+}
+
 struct TextSelection: Equatable {
     let text: String
     let range: NSRange
@@ -86,13 +113,21 @@ struct SelectableTextView: UIViewRepresentable {
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {
-            let range = textView.selectedRange
+            var range = textView.selectedRange
             guard range.length > 0 else {
                 parent.onSelectionChange(nil)
                 return
             }
 
-            let text = (textView.text as NSString).substring(with: range)
+            // Snap selection to word boundaries so partial-letter grabs still capture full words
+            let nsText = textView.text as NSString
+            let wordRange = nsText.wordRange(for: range)
+            if wordRange != range {
+                range = wordRange
+                textView.selectedRange = range
+            }
+
+            let text = nsText.substring(with: range)
 
             guard let start = textView.position(from: textView.beginningOfDocument, offset: range.location),
                   let end = textView.position(from: start, offset: range.length),

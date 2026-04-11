@@ -4,10 +4,10 @@ struct PreviewerView: View {
     let ocrResult: OCRResult
 
     @State private var selection: TextSelection?
-    @State private var magicState: MagicButtonState = .idle
-    @State private var explanationResult: ExplanationResult?
+    @State private var translationResult: TranslationResult?
     @State private var showTranslationPopup = false
-    @State private var showGrammarDetail = false
+    @State private var debounceTask: Task<Void, Never>?
+    @State private var hideTask: Task<Void, Never>?
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -15,42 +15,22 @@ struct PreviewerView: View {
                 handleSelectionChange(newSelection)
             }
 
-            if let selection, !showTranslationPopup {
-                MagicButton(state: magicState) {
-                    fetchExplanation(for: selection.text)
-                }
-                .offset(
-                    x: clampX(selection.rect.midX - 30),
-                    y: selection.rect.maxY + 12
-                )
-            }
-
-            if showTranslationPopup, let result = explanationResult {
-                translationOverlay(result: result)
+            if showTranslationPopup, let selectedText = selection?.text ?? translationResult?.selectedText {
+                translationOverlay(selectedText: selectedText)
             }
         }
         .navigationTitle("Перегляд")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showGrammarDetail) {
-            if let result = explanationResult {
-                GrammarDetailView(result: result)
-            }
-        }
     }
 
     @ViewBuilder
-    private func translationOverlay(result: ExplanationResult) -> some View {
+    private func translationOverlay(selectedText: String) -> some View {
         VStack {
             Spacer()
-
             TranslationPopup(
-                result: result,
-                onExpand: {
-                    showGrammarDetail = true
-                },
-                onDismiss: {
-                    dismissPopup()
-                }
+                selectedText: selectedText,
+                translation: translationResult,
+                onDismiss: { dismissPopup() }
             )
             .padding(.horizontal, YapsTheme.padding)
             .padding(.bottom, YapsTheme.largePadding)
@@ -61,47 +41,50 @@ struct PreviewerView: View {
 
     private func handleSelectionChange(_ newSelection: TextSelection?) {
         if newSelection == nil {
-            if !showTranslationPopup {
+            guard !showTranslationPopup else { return }
+            hideTask?.cancel()
+            hideTask = Task {
+                try? await Task.sleep(for: .milliseconds(400))
+                guard !Task.isCancelled else { return }
+                debounceTask?.cancel()
                 selection = nil
-                magicState = .idle
             }
         } else {
-            dismissPopup()
+            hideTask?.cancel()
             selection = newSelection
-            magicState = .idle
+            scheduleTranslate(for: newSelection!)
         }
     }
 
-    private func fetchExplanation(for text: String) {
-        magicState = .thinking
-        Task {
+    private func scheduleTranslate(for newSelection: TextSelection) {
+        debounceTask?.cancel()
+        debounceTask = Task {
+            try? await Task.sleep(for: .milliseconds(600))
+            guard !Task.isCancelled else { return }
+            translationResult = nil
+            withAnimation { showTranslationPopup = true }
+
             do {
-                let result = try await APIService.shared.explain(
-                    text: text,
-                    sourceLanguage: ocrResult.detectedLanguage,
+                let result = try await APIService.shared.translate(
+                    text: newSelection.text,
                     context: ocrResult.fullText
                 )
-                explanationResult = result
-                magicState = .done
+                guard !Task.isCancelled else { return }
+                withAnimation { translationResult = result }
                 YapsTheme.hapticSuccess()
-                try? await Task.sleep(for: .seconds(0.3))
-                withAnimation { showTranslationPopup = true }
             } catch {
-                print("[Previewer] explain failed:", error.localizedDescription)
-                magicState = .idle
+                print("[Previewer] translate failed:", error.localizedDescription)
+                dismissPopup()
             }
         }
     }
 
     private func dismissPopup() {
+        debounceTask?.cancel()
         withAnimation {
             showTranslationPopup = false
-            explanationResult = nil
-            magicState = .idle
+            translationResult = nil
+            selection = nil
         }
-    }
-
-    private func clampX(_ x: CGFloat) -> CGFloat {
-        max(16, min(x, UIScreen.main.bounds.width - 80))
     }
 }

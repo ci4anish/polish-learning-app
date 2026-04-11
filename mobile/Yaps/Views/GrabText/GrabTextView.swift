@@ -8,8 +8,8 @@ struct GrabTextView: View {
     @State private var navigateToPreviewer = false
     @State private var heroScale: CGFloat = 0.8
     @State private var heroOpacity: CGFloat = 0
-    @State private var selectedLanguage: ContentLanguage? = ContentLanguage.all.first
-    @State private var showLanguagePicker = false
+
+    private let languageHint = "pl"
 
     private var isCameraAvailable: Bool {
         UIImagePickerController.isSourceTypeAvailable(.camera)
@@ -44,13 +44,6 @@ struct GrabTextView: View {
                 ProcessingOverlay()
             }
         }
-        .sheet(isPresented: $showLanguagePicker) {
-            LanguageSelectorSheet { language in
-                withAnimation(.spring(duration: 0.5, bounce: 0.3)) {
-                    selectedLanguage = language
-                }
-            }
-        }
         .onAppear {
             withAnimation(.spring(duration: 0.8, bounce: 0.4)) {
                 heroScale = 1.0
@@ -61,95 +54,18 @@ struct GrabTextView: View {
 
     private var heroSection: some View {
         VStack(spacing: 20) {
-            languageBadge
-
-            VStack(spacing: 8) {
-                Text("Сканувати текст")
-                    .font(YapsTheme.titleFont)
-
-                if let lang = selectedLanguage {
-                    HStack(spacing: 6) {
-                        Text("Мова: **\(lang.nativeName)**")
-                            .font(YapsTheme.bodyFont)
-                            .foregroundStyle(.secondary)
-
-                        Button {
-                            withAnimation(.spring(duration: 0.4, bounce: 0.3)) {
-                                selectedLanguage = nil
-                            }
-                            YapsTheme.hapticTap()
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.subheadline)
-                                .foregroundStyle(.tertiary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .transition(.blurReplace)
-                } else {
-                    Text("Натисніть на іконку, щоб обрати мову тексту")
-                        .font(YapsTheme.bodyFont)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .transition(.blurReplace)
-                }
-            }
-
-        }
-    }
-
-    private var languageBadge: some View {
-        Button {
-            YapsTheme.hapticTap()
-            showLanguagePicker = true
-        } label: {
-            ZStack {
-                if let lang = selectedLanguage {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: lang.flagColors.map { $0.opacity(0.25) },
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 130, height: 130)
-                        .overlay(
-                            Circle()
-                                .strokeBorder(
-                                    LinearGradient(
-                                        colors: lang.flagColors.map { $0.opacity(0.5) },
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ),
-                                    lineWidth: 2.5
-                                )
-                        )
-                        .transition(.scale.combined(with: .opacity))
-                } else {
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                        .frame(width: 130, height: 130)
-                        .transition(.scale.combined(with: .opacity))
-                }
-
-                VStack(spacing: 6) {
-                    Image(systemName: selectedLanguage != nil ? "character.book.closed.fill" : "text.viewfinder")
+            Circle()
+                .fill(.ultraThinMaterial)
+                .frame(width: 130, height: 130)
+                .overlay(
+                    Image(systemName: "text.viewfinder")
                         .font(.system(size: 42, weight: .light))
                         .foregroundStyle(.tint)
-                        .contentTransition(.symbolEffect(.replace))
+                )
 
-                    if let lang = selectedLanguage {
-                        Text(lang.id.uppercased())
-                            .font(.system(.caption2, design: .rounded, weight: .bold))
-                            .foregroundStyle(.tint)
-                            .transition(.blurReplace)
-                    }
-                }
-            }
+            Text("Сканувати текст")
+                .font(YapsTheme.titleFont)
         }
-        .buttonStyle(LanguageBadgeButtonStyle())
-        .animation(.spring(duration: 0.5, bounce: 0.3), value: selectedLanguage)
     }
 
     private var actionButtons: some View {
@@ -198,12 +114,9 @@ struct GrabTextView: View {
             do {
                 let result = try await APIService.shared.performOCR(
                     imageData: data,
-                    languageHint: selectedLanguage?.id
+                    languageHint: languageHint
                 )
                 ocrResult = result
-                if let lang = ContentLanguage.all.first(where: { $0.id == result.detectedLanguage }) {
-                    withAnimation { selectedLanguage = lang }
-                }
                 isProcessing = false
                 navigateToPreviewer = true
             } catch {
@@ -214,13 +127,6 @@ struct GrabTextView: View {
     }
 }
 
-struct LanguageBadgeButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
-            .animation(.spring(duration: 0.3, bounce: 0.4), value: configuration.isPressed)
-    }
-}
 
 struct ProcessingOverlay: View {
     @State private var rotation: Double = 0
