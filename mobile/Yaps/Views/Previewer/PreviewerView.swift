@@ -1,13 +1,13 @@
 import SwiftUI
 
 struct PreviewerView: View {
-    let ocrResult: OCRResult
+    let translationResult: TranslationResult
 
     @State private var selectedText: String?
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            BilingualTextView(blocks: ocrResult.blocks) { text in
+            BilingualTextView(blocks: translationResult.blocks) { text in
                 withAnimation { selectedText = text }
             }
 

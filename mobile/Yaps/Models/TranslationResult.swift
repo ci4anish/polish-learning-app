@@ -12,7 +12,7 @@ struct TextBlock: Codable, Identifiable, Sendable, Equatable {
     }
 }
 
-struct OCRContent: Codable, Sendable {
+struct TranslationContent: Codable, Sendable {
     let detectedLanguage: String
     let blocks: [TextBlock]
 
@@ -21,17 +21,17 @@ struct OCRContent: Codable, Sendable {
     }
 }
 
-struct OCRResponse: Codable, Sendable {
+struct TranslationResponse: Codable, Sendable {
     let success: Bool
-    let content: OCRContent?
+    let content: TranslationContent?
     let provider: String?
     let model: String?
     let error: String?
 }
 
-struct OCRResult: Identifiable, Sendable {
+struct TranslationResult: Identifiable, Sendable {
     let id: UUID
-    let content: OCRContent
+    let content: TranslationContent
 
     var fullText: String { content.fullText }
     var detectedLanguage: String { content.detectedLanguage }

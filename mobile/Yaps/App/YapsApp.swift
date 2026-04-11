@@ -163,10 +163,10 @@ struct ProfileView: View {
 struct OCRHistoryDetailView: View {
     let item: OCRHistoryItem
 
-    private var ocrResult: OCRResult {
-        OCRResult(
+    private var translationResult: TranslationResult {
+        TranslationResult(
             id: UUID(),
-            content: OCRContent(
+            content: TranslationContent(
                 detectedLanguage: item.detectedLanguage,
                 blocks: item.blocks
             )
@@ -174,6 +174,6 @@ struct OCRHistoryDetailView: View {
     }
 
     var body: some View {
-        PreviewerView(ocrResult: ocrResult)
+        PreviewerView(translationResult: translationResult)
     }
 }

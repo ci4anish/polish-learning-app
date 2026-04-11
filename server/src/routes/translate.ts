@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import type { Bindings, Variables } from "../types";
-import { performOcr } from "../services/ocr";
+import { performOcr } from "../services/translate";
 import { authMiddleware } from "../middleware/auth";
 import { createSupabaseClient } from "../lib/supabase";
 

@@ -19,7 +19,7 @@ actor APIService {
         }
     }
 
-    func performOCR(imageData: Data, languageHint: String? = nil) async throws -> OCRResult {
+    func translate(imageData: Data, languageHint: String? = nil) async throws -> TranslationResult {
         let url = URL(string: "\(baseURL)/api/translate")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -52,13 +52,13 @@ actor APIService {
             throw APIError.invalidResponse
         }
 
-        let decoded = try JSONDecoder().decode(OCRResponse.self, from: data)
+        let decoded = try JSONDecoder().decode(TranslationResponse.self, from: data)
 
         if !decoded.success || decoded.content == nil {
-            throw APIError.serverError(decoded.error ?? "OCR failed (HTTP \(http.statusCode))")
+            throw APIError.serverError(decoded.error ?? "Translation failed (HTTP \(http.statusCode))")
         }
 
-        return OCRResult(id: UUID(), content: decoded.content!)
+        return TranslationResult(id: UUID(), content: decoded.content!)
     }
 
     private struct ErrorResponse: Decodable { let error: String? }

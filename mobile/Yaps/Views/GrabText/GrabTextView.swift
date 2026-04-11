@@ -3,7 +3,7 @@ import UIKit
 
 struct GrabTextView: View {
     @State private var showCamera = false
-    @State private var ocrResult: OCRResult?
+    @State private var translationResult: TranslationResult?
     @State private var isProcessing = false
     @State private var navigateToPreviewer = false
     @State private var heroScale: CGFloat = 0.8
@@ -35,8 +35,8 @@ struct GrabTextView: View {
             }
         }
         .navigationDestination(isPresented: $navigateToPreviewer) {
-            if let result = ocrResult {
-                PreviewerView(ocrResult: result)
+            if let result = translationResult {
+                PreviewerView(translationResult: result)
             }
         }
         .overlay {
@@ -112,11 +112,11 @@ struct GrabTextView: View {
         isProcessing = true
         Task {
             do {
-                let result = try await APIService.shared.performOCR(
+                let result = try await APIService.shared.translate(
                     imageData: data,
                     languageHint: languageHint
                 )
-                ocrResult = result
+                translationResult = result
                 isProcessing = false
                 navigateToPreviewer = true
             } catch {
