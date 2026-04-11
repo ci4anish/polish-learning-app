@@ -28,4 +28,25 @@ history.get("/ocr", async (c) => {
   return c.json({ success: true, data });
 });
 
+history.delete("/ocr/:id", async (c) => {
+  const userId = c.get("userId");
+  if (!userId) {
+    return c.json({ success: false, error: "Unauthorized" }, 401);
+  }
+
+  const id = c.req.param("id");
+  const supabase = createSupabaseClient(c.env);
+  const { error } = await supabase
+    .from("ocr_history")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId);
+
+  if (error) {
+    return c.json({ success: false, error: error.message }, 500);
+  }
+
+  return c.json({ success: true });
+});
+
 export default history;

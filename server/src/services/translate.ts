@@ -19,8 +19,9 @@ function buildPrompt(text: string, context?: string): string {
   }
   parts.push(
     "",
-    "IMPORTANT: The translation MUST be in Ukrainian, NOT in Polish or any other language.",
-    "- translation: accurate Ukrainian translation of the Polish text",
+    "IMPORTANT:",
+    "- The translation MUST be in Ukrainian using CYRILLIC script (e.g. 'професії', not 'profesiyi').",
+    "- Never transliterate into Latin letters. Always use the Ukrainian Cyrillic alphabet.",
   );
   return parts.join("\n");
 }

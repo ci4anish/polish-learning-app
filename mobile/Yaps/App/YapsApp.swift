@@ -74,23 +74,28 @@ struct HistoryPlaceholderView: View {
                     description: Text("Тут зʼявляться ваші відскановані тексти")
                 )
             } else {
-                List(items) { item in
-                    NavigationLink(destination: OCRHistoryDetailView(item: item)) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(item.preview)
-                                .font(.body)
-                                .lineLimit(3)
-                            HStack {
-                                Label(item.detectedLanguage.uppercased(), systemImage: "globe")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text(Self.dateFormatter.string(from: item.createdAt))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                List {
+                    ForEach(items) { item in
+                        NavigationLink(destination: OCRHistoryDetailView(item: item)) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(item.preview)
+                                    .font(.body)
+                                    .lineLimit(3)
+                                HStack {
+                                    Label(item.detectedLanguage.uppercased(), systemImage: "globe")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                    Spacer()
+                                    Text(Self.dateFormatter.string(from: item.createdAt))
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
+                            .padding(.vertical, 4)
                         }
-                        .padding(.vertical, 4)
+                    }
+                    .onDelete { offsets in
+                        deleteItems(at: offsets)
                     }
                 }
             }
@@ -108,6 +113,16 @@ struct HistoryPlaceholderView: View {
             items = try await APIService.shared.fetchOCRHistory()
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func deleteItems(at offsets: IndexSet) {
+        let toDelete = offsets.map { items[$0] }
+        items.remove(atOffsets: offsets)
+        Task {
+            for item in toDelete {
+                try? await APIService.shared.deleteOCRHistory(id: item.id)
+            }
         }
     }
 }

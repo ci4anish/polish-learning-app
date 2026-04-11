@@ -1,6 +1,8 @@
 import SwiftUI
 import UIKit
 
+private let wordExtraChars = CharacterSet(charactersIn: "-'")
+
 private extension NSString {
     func wordRange(for range: NSRange) -> NSRange {
         let start = rangeOfWord(at: range.location).location
@@ -24,7 +26,7 @@ private extension NSString {
     private func isWordChar(at index: Int) -> Bool {
         let c = character(at: index)
         guard let scalar = Unicode.Scalar(c) else { return false }
-        return CharacterSet.letters.contains(scalar) || CharacterSet(charactersIn: "-'").contains(scalar)
+        return CharacterSet.letters.contains(scalar) || wordExtraChars.contains(scalar)
     }
 }
 
@@ -32,6 +34,25 @@ struct TextSelection: Equatable {
     let text: String
     let range: NSRange
     let rect: CGRect
+}
+
+/// Passive gesture recognizer that tracks touch lifecycle without
+/// interfering with UITextView's own selection gestures.
+private class TouchObserver: UIGestureRecognizer {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+        state = .began
+    }
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
+        state = .changed
+    }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        state = .ended
+    }
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        state = .cancelled
+    }
+    override func canPrevent(_ preventedGestureRecognizer: UIGestureRecognizer) -> Bool { false }
+    override func canBePrevented(by preventingGestureRecognizer: UIGestureRecognizer) -> Bool { false }
 }
 
 /// UITextView subclass that suppresses the default edit menu (Copy/Paste/Select All)
@@ -59,10 +80,27 @@ struct SelectableTextView: UIViewRepresentable {
         textView.showsVerticalScrollIndicator = false
         textView.delegate = context.coordinator
         textView.attributedText = Self.buildAttributedString(from: blocks)
+
+        let touchObserver = TouchObserver(
+            target: context.coordinator,
+            action: #selector(Coordinator.handleTouch(_:))
+        )
+        touchObserver.cancelsTouchesInView = false
+        touchObserver.delaysTouchesBegan = false
+        touchObserver.delaysTouchesEnded = false
+        touchObserver.delegate = context.coordinator
+        textView.addGestureRecognizer(touchObserver)
+
         return textView
     }
 
-    func updateUIView(_ uiView: UITextView, context: Context) {}
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        context.coordinator.parent = self
+        if blocks != context.coordinator.previousBlocks {
+            context.coordinator.previousBlocks = blocks
+            uiView.attributedText = Self.buildAttributedString(from: blocks)
+        }
+    }
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -105,37 +143,61 @@ struct SelectableTextView: UIViewRepresentable {
         return result
     }
 
-    class Coordinator: NSObject, UITextViewDelegate {
-        let parent: SelectableTextView
+    class Coordinator: NSObject, UITextViewDelegate, UIGestureRecognizerDelegate {
+        var parent: SelectableTextView
+        var previousBlocks: [TextBlock]
         private var isAdjustingSelection = false
-        private var pendingWork: DispatchWorkItem?
+        private var isTouching = false
+        private var needsEmit = false
 
         init(_ parent: SelectableTextView) {
             self.parent = parent
+            self.previousBlocks = parent.blocks
         }
+
+        // MARK: - Touch tracking
+
+        @objc func handleTouch(_ gesture: UIGestureRecognizer) {
+            switch gesture.state {
+            case .began:
+                isTouching = true
+            case .ended, .cancelled, .failed:
+                isTouching = false
+                if needsEmit, let textView = gesture.view as? UITextView {
+                    needsEmit = false
+                    emitSelection(textView)
+                }
+            default:
+                break
+            }
+        }
+
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer
+        ) -> Bool { true }
+
+        // MARK: - Selection
 
         func textViewDidChangeSelection(_ textView: UITextView) {
             guard !isAdjustingSelection else { return }
 
-            // Snap to word boundaries immediately so the highlight never shows partial words
-            var range = textView.selectedRange
-            if range.length > 0 {
+            if textView.selectedRange.length > 0 {
                 let nsText = textView.text as NSString
-                let wordRange = nsText.wordRange(for: range)
-                if wordRange != range {
+                let wordRange = nsText.wordRange(for: textView.selectedRange)
+                if wordRange != textView.selectedRange {
                     isAdjustingSelection = true
                     textView.selectedRange = wordRange
                     isAdjustingSelection = false
                 }
             }
 
-            // Debounce the rect computation + SwiftUI callback
-            pendingWork?.cancel()
-            let item = DispatchWorkItem { [weak self] in
-                self?.emitSelection(textView)
+            if isTouching {
+                needsEmit = true
+            } else {
+                needsEmit = false
+                emitSelection(textView)
             }
-            pendingWork = item
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: item)
         }
 
         private func emitSelection(_ textView: UITextView) {
@@ -156,13 +218,17 @@ struct SelectableTextView: UIViewRepresentable {
                 return
             }
 
-            let uiKitRect = textView.firstRect(for: textRange)
+            let rects = textView.selectionRects(for: textRange)
+            let uiKitRect = rects.reduce(CGRect.null) { $0.union($1.rect) }
 
-            let visibleRect = CGRect(
-                x: uiKitRect.origin.x - textView.contentOffset.x,
-                y: uiKitRect.origin.y - textView.contentOffset.y,
-                width: uiKitRect.width,
-                height: uiKitRect.height
+            guard !uiKitRect.isNull else {
+                parent.onSelectionChange(nil)
+                return
+            }
+
+            let visibleRect = uiKitRect.offsetBy(
+                dx: -textView.contentOffset.x,
+                dy: -textView.contentOffset.y
             )
 
             let selection = TextSelection(text: text, range: range, rect: visibleRect)

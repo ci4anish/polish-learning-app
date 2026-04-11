@@ -25,7 +25,6 @@
 		A431A5016ED2634005F2F238 /* YapsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674FCD22BB88FBD6D023E555 /* YapsApp.swift */; };
 		C228EC3617BF9056D8AE8776 /* OCRResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4668EB4DEB0820AA945BB405 /* OCRResult.swift */; };
 		EA4AA42A8A60B4F95F6686F5 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FF9E9FFE2350657C64DF91E /* LoginView.swift */; };
-		ECBDB7F49B031486852103E4 /* MagicButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F506181BE5B3E3A33F74BEBE /* MagicButton.swift */; };
 		F0F60D91009D4CC7E066BBF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 391EADC11CB3DA038B06D0B8 /* Assets.xcassets */; };
 		F2C4C6A6CDD5313BE83F2B42 /* YapsTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCAD7DE22C0673691627AE71 /* YapsTheme.swift */; };
 /* End PBXBuildFile section */
@@ -52,7 +51,6 @@
 		B7A5C53021AFB460192747EA /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		C804D86DBFD207D26119F5D4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		CE9783A93C90160769C708B0 /* sample-page.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample-page.jpg"; sourceTree = "<group>"; };
-		F506181BE5B3E3A33F74BEBE /* MagicButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagicButton.swift; sourceTree = "<group>"; };
 		FCAD7DE22C0673691627AE71 /* YapsTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapsTheme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -128,7 +126,6 @@
 		51FC6F5F0E8D9C6C709782EE /* Previewer */ = {
 			isa = PBXGroup;
 			children = (
-				F506181BE5B3E3A33F74BEBE /* MagicButton.swift */,
 				26DBAD756BAB41765DD0DBBF /* PreviewerView.swift */,
 				8F6D437D599C55511EEDB4F2 /* SelectableTextView.swift */,
 			);
@@ -291,7 +288,6 @@
 				9A4ACB6745B1A92CEF13760E /* HistoryItem.swift in Sources */,
 				A41407B5DF949C0CF8718465 /* LanguageSelectorSheet.swift in Sources */,
 				EA4AA42A8A60B4F95F6686F5 /* LoginView.swift in Sources */,
-				ECBDB7F49B031486852103E4 /* MagicButton.swift in Sources */,
 				C228EC3617BF9056D8AE8776 /* OCRResult.swift in Sources */,
 				3584D019EE0A157E41CE46ED /* PreviewerView.swift in Sources */,
 				7D79664891F662C9FB090AE0 /* SelectableTextView.swift in Sources */,
