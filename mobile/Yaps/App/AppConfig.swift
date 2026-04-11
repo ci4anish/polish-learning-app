@@ -11,7 +11,13 @@ enum AppConfig {
 
     static let supabasePublishableKey: String = string(for: "SupabasePublishableKey")
 
-    static let apiBaseURL: String = string(for: "APIBaseURL")
+    static let apiBaseURL: String = {
+        #if targetEnvironment(simulator)
+        return "http://localhost:8787"
+        #else
+        return string(for: "APIBaseURL")
+        #endif
+    }()
 
     private static func string(for key: String) -> String {
         guard let value = Bundle.main.infoDictionary?[key] as? String, !value.isEmpty else {

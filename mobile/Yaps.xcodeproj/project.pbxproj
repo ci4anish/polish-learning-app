@@ -38,7 +38,7 @@
 		34A569314CD9D3FD3E659E79 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		391EADC11CB3DA038B06D0B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4668EB4DEB0820AA945BB405 /* OCRResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRResult.swift; sourceTree = "<group>"; };
-		4D4F747C2FE41CE57EBF2893 /* Yaps.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Yaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D4F747C2FE41CE57EBF2893 /* Yaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64649C389244124560F7EFC6 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		66CC3C1D0A968E5FE84399AC /* ContentLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLanguage.swift; sourceTree = "<group>"; };
 		674FCD22BB88FBD6D023E555 /* YapsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapsApp.swift; sourceTree = "<group>"; };
@@ -243,8 +243,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = AFBDEC7007BFB995643E2E46 /* Build configuration list for PBXProject "Yaps" */;
 			developmentRegion = en;
@@ -374,6 +372,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3MFU8G98MP;
 				INFOPLIST_FILE = Yaps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -458,6 +457,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3MFU8G98MP;
 				INFOPLIST_FILE = Yaps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
