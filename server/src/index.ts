@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import type { Bindings, Variables } from "./types";
-import ocrRoute from "./routes/ocr";
 import translateRoute from "./routes/translate";
 import historyRoute from "./routes/history";
 import audioRoute from "./routes/audio";
@@ -21,7 +20,6 @@ app.get("/api/health/supabase", async (c) => {
   return c.json({ connected: true });
 });
 
-app.route("/api/ocr", ocrRoute);
 app.route("/api/translate", translateRoute);
 app.route("/api/history", historyRoute);
 app.route("/api/audio", audioRoute);

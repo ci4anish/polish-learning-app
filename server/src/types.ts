@@ -34,19 +34,6 @@ export type OcrResult = {
   error?: string;
 };
 
-export type TranslateContent = {
-  selectedText: string;
-  translation: string;
-};
-
-export type TranslateResult = {
-  success: boolean;
-  translation?: TranslateContent;
-  provider: string;
-  model: string;
-  error?: string;
-};
-
 export type AudioResult = {
   success: boolean;
   audioData?: Uint8Array;

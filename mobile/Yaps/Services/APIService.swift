@@ -20,7 +20,7 @@ actor APIService {
     }
 
     func performOCR(imageData: Data, languageHint: String? = nil) async throws -> OCRResult {
-        let url = URL(string: "\(baseURL)/api/ocr")!
+        let url = URL(string: "\(baseURL)/api/translate")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.timeoutInterval = 60
@@ -59,32 +59,6 @@ actor APIService {
         }
 
         return OCRResult(id: UUID(), content: decoded.content!)
-    }
-
-    func translate(text: String, context: String? = nil) async throws -> TranslationResult {
-        struct Body: Encodable { let text: String; let context: String? }
-        let data = try await post(path: "/api/translate", body: Body(text: text, context: context))
-        let decoded = try JSONDecoder().decode(TranslateResponse.self, from: data)
-        guard decoded.success, let content = decoded.translation else {
-            throw APIError.serverError(decoded.error ?? "Translation failed")
-        }
-        return TranslationResult(from: content)
-    }
-
-    private func post<B: Encodable>(path: String, body: B) async throws -> Data {
-        let url = URL(string: "\(baseURL)\(path)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.timeoutInterval = 30
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        await attachAuthHeader(to: &request)
-        request.httpBody = try JSONEncoder().encode(body)
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            return data
-        } catch {
-            throw APIError.networkError(error)
-        }
     }
 
     private struct ErrorResponse: Decodable { let error: String? }

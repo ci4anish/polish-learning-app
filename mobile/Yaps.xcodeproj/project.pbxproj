@@ -11,14 +11,11 @@
 		29665FFFC60A4840E3A457E9 /* GrabTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C72A892F0F15471E9AAE05 /* GrabTextView.swift */; };
 		296D635CE7F3284F5C7B69FA /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70594E455FAB4B1AE14BC029 /* AuthService.swift */; };
 		3584D019EE0A157E41CE46ED /* PreviewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26DBAD756BAB41765DD0DBBF /* PreviewerView.swift */; };
-		3FFB8336D642C7212B827924 /* ExplanationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1DAE82AAEEAB269001567 /* ExplanationResult.swift */; };
 		42429619B489004B3BC8F924 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7A5C53021AFB460192747EA /* APIService.swift */; };
 		5BB036706E3445A886901063 /* AudioButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4F39354FEA0DD8340312B /* AudioButton.swift */; };
 		661B58055D462E4D14C942E4 /* ContentLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CC3C1D0A968E5FE84399AC /* ContentLanguage.swift */; };
 		6D89ABF30CC52FF3B951BEC2 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = E2365B3E14832566FFD307D2 /* Supabase */; };
 		7135B42AD30401B2540170BE /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A569314CD9D3FD3E659E79 /* AppConfig.swift */; };
-		7B82739DF335884DB26FAF80 /* TranslationPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C72B690747959252A79133 /* TranslationPopup.swift */; };
-		7D79664891F662C9FB090AE0 /* SelectableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6D437D599C55511EEDB4F2 /* SelectableTextView.swift */; };
 		8110AF2854D0FE7EBBBE3EDC /* sample-page.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CE9783A93C90160769C708B0 /* sample-page.jpg */; };
 		840DEE1A9B4C31C4B31B689E /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64649C389244124560F7EFC6 /* CameraView.swift */; };
 		9A4ACB6745B1A92CEF13760E /* HistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21E629712E8CBE3B72A445FB /* HistoryItem.swift */; };
@@ -44,11 +41,8 @@
 		674FCD22BB88FBD6D023E555 /* YapsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapsApp.swift; sourceTree = "<group>"; };
 		70594E455FAB4B1AE14BC029 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		84C4F39354FEA0DD8340312B /* AudioButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioButton.swift; sourceTree = "<group>"; };
-		8F6D437D599C55511EEDB4F2 /* SelectableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableTextView.swift; sourceTree = "<group>"; };
 		8FF9E9FFE2350657C64DF91E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		90C72B690747959252A79133 /* TranslationPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPopup.swift; sourceTree = "<group>"; };
 		AE706C9608CC2C5BE28E910C /* LanguageSelectorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSelectorSheet.swift; sourceTree = "<group>"; };
-		B4B1DAE82AAEEAB269001567 /* ExplanationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplanationResult.swift; sourceTree = "<group>"; };
 		B586E9514030CA2E18B1B7BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B7A5C53021AFB460192747EA /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		C804D86DBFD207D26119F5D4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
@@ -96,7 +90,6 @@
 			isa = PBXGroup;
 			children = (
 				84C4F39354FEA0DD8340312B /* AudioButton.swift */,
-				90C72B690747959252A79133 /* TranslationPopup.swift */,
 			);
 			path = Explanation;
 			sourceTree = "<group>";
@@ -130,7 +123,6 @@
 			children = (
 				1A2B3C4D5E6F70819A0B1C2E /* BilingualTextView.swift */,
 				26DBAD756BAB41765DD0DBBF /* PreviewerView.swift */,
-				8F6D437D599C55511EEDB4F2 /* SelectableTextView.swift */,
 			);
 			path = Previewer;
 			sourceTree = "<group>";
@@ -202,7 +194,6 @@
 			isa = PBXGroup;
 			children = (
 				66CC3C1D0A968E5FE84399AC /* ContentLanguage.swift */,
-				B4B1DAE82AAEEAB269001567 /* ExplanationResult.swift */,
 				21E629712E8CBE3B72A445FB /* HistoryItem.swift */,
 				4668EB4DEB0820AA945BB405 /* OCRResult.swift */,
 			);
@@ -287,15 +278,12 @@
 				296D635CE7F3284F5C7B69FA /* AuthService.swift in Sources */,
 				840DEE1A9B4C31C4B31B689E /* CameraView.swift in Sources */,
 				661B58055D462E4D14C942E4 /* ContentLanguage.swift in Sources */,
-				3FFB8336D642C7212B827924 /* ExplanationResult.swift in Sources */,
 				29665FFFC60A4840E3A457E9 /* GrabTextView.swift in Sources */,
 				9A4ACB6745B1A92CEF13760E /* HistoryItem.swift in Sources */,
 				A41407B5DF949C0CF8718465 /* LanguageSelectorSheet.swift in Sources */,
 				EA4AA42A8A60B4F95F6686F5 /* LoginView.swift in Sources */,
 				C228EC3617BF9056D8AE8776 /* OCRResult.swift in Sources */,
 				3584D019EE0A157E41CE46ED /* PreviewerView.swift in Sources */,
-				7D79664891F662C9FB090AE0 /* SelectableTextView.swift in Sources */,
-				7B82739DF335884DB26FAF80 /* TranslationPopup.swift in Sources */,
 				A431A5016ED2634005F2F238 /* YapsApp.swift in Sources */,
 				F2C4C6A6CDD5313BE83F2B42 /* YapsTheme.swift in Sources */,
 			);
