@@ -63,7 +63,7 @@ struct PreviewerView: View {
             do {
                 let result = try await APIService.shared.translate(
                     text: newSelection.text,
-                    context: Self.surroundingContext(
+                    context: Self.surroundingSentence(
                         for: newSelection.range,
                         in: ocrResult.fullText
                     )
@@ -78,13 +78,24 @@ struct PreviewerView: View {
         }
     }
 
-    /// Extracts ~200 characters of surrounding text centered on the selection range.
-    private static func surroundingContext(for range: NSRange, in fullText: String, radius: Int = 100) -> String {
+    private static func surroundingSentence(for range: NSRange, in fullText: String) -> String {
         let ns = fullText as NSString
-        let center = range.location + range.length / 2
-        let start = max(0, center - radius)
-        let end = min(ns.length, center + radius)
-        return ns.substring(with: NSRange(location: start, length: end - start))
+        let sentenceRange = ns.paragraphRange(for: range)
+        let paragraph = ns.substring(with: sentenceRange)
+
+        guard let swiftRange = Range(range, in: fullText) else { return paragraph }
+        let offset = fullText.distance(from: fullText.startIndex, to: swiftRange.lowerBound)
+            - fullText.distance(from: fullText.startIndex, to: fullText.index(fullText.startIndex, offsetBy: sentenceRange.location))
+
+        var best = paragraph[...]
+        paragraph.enumerateSubstrings(in: paragraph.startIndex..., options: .bySentences) { _, substringRange, _, stop in
+            let localEnd = paragraph.distance(from: paragraph.startIndex, to: substringRange.upperBound)
+            if offset < localEnd {
+                best = paragraph[substringRange]
+                stop = true
+            }
+        }
+        return String(best).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func dismissPopup() {

@@ -70,6 +70,7 @@ export async function performTTS(text: string, env: Bindings, language?: string)
     const inlineData = json.candidates?.[0]?.content?.parts?.[0]?.inlineData;
 
     if (!inlineData?.data) {
+      console.error("[audio] unexpected Gemini TTS response:", JSON.stringify(json));
       return { success: false, error: "No audio data returned from Gemini TTS" };
     }
 
