@@ -36,7 +36,6 @@ export type OcrResult = {
 export type TranslateContent = {
   selectedText: string;
   translation: string;
-  partOfSpeech: string;
 };
 
 export type TranslateResult = {

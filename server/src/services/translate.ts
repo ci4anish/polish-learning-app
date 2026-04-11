@@ -6,7 +6,6 @@ import { GEMINI_BASE_URL, GEMINI_MODEL } from "../lib/constants";
 
 const translateSchema = z.object({
   translation: z.string().describe("Translation of the selected text into Ukrainian"),
-  partOfSpeech: z.string().describe("Part of speech in Ukrainian with the native Polish grammar term in parentheses, e.g. 'Прикметник (Przymiotnik)'"),
 });
 
 function buildPrompt(text: string, context?: string): string {
@@ -22,7 +21,6 @@ function buildPrompt(text: string, context?: string): string {
     "",
     "IMPORTANT: The translation MUST be in Ukrainian, NOT in Polish or any other language.",
     "- translation: accurate Ukrainian translation of the Polish text",
-    "- partOfSpeech: part of speech in Ukrainian with the Polish grammar term in parentheses, e.g. 'Прикметник (Przymiotnik)'",
   );
   return parts.join("\n");
 }
@@ -58,7 +56,7 @@ export async function performTranslate(
 
     return {
       success: true,
-      translation: { selectedText: text, translation: parsed.translation, partOfSpeech: parsed.partOfSpeech },
+      translation: { selectedText: text, translation: parsed.translation },
       provider: "gemini",
       model: GEMINI_MODEL,
     };

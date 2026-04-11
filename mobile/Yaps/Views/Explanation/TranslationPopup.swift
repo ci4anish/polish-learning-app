@@ -39,10 +39,6 @@ struct TranslationPopup: View {
     private var content: some View {
         if let translation {
             VStack(alignment: .leading, spacing: 14) {
-                Text(translation.partOfSpeech)
-                    .font(.system(.caption2, design: .rounded))
-                    .foregroundStyle(.secondary)
-
                 HStack(spacing: 12) {
                     Image(systemName: "character.book.closed.fill")
                         .font(.title3)
