@@ -7,7 +7,6 @@ struct PreviewerView: View {
     @State private var translationResult: TranslationResult?
     @State private var showTranslationPopup = false
     @State private var debounceTask: Task<Void, Never>?
-    @State private var hideTask: Task<Void, Never>?
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -41,16 +40,13 @@ struct PreviewerView: View {
 
     private func handleSelectionChange(_ newSelection: TextSelection?) {
         if newSelection == nil {
-            guard !showTranslationPopup else { return }
-            hideTask?.cancel()
-            hideTask = Task {
-                try? await Task.sleep(for: .milliseconds(400))
-                guard !Task.isCancelled else { return }
-                debounceTask?.cancel()
+            debounceTask?.cancel()
+            if showTranslationPopup {
+                dismissPopup()
+            } else {
                 selection = nil
             }
         } else {
-            hideTask?.cancel()
             selection = newSelection
             scheduleTranslate(for: newSelection!)
         }
@@ -67,7 +63,10 @@ struct PreviewerView: View {
             do {
                 let result = try await APIService.shared.translate(
                     text: newSelection.text,
-                    context: ocrResult.fullText
+                    context: Self.surroundingContext(
+                        for: newSelection.range,
+                        in: ocrResult.fullText
+                    )
                 )
                 guard !Task.isCancelled else { return }
                 withAnimation { translationResult = result }
@@ -77,6 +76,15 @@ struct PreviewerView: View {
                 dismissPopup()
             }
         }
+    }
+
+    /// Extracts ~200 characters of surrounding text centered on the selection range.
+    private static func surroundingContext(for range: NSRange, in fullText: String, radius: Int = 100) -> String {
+        let ns = fullText as NSString
+        let center = range.location + range.length / 2
+        let start = max(0, center - radius)
+        let end = min(ns.length, center + radius)
+        return ns.substring(with: NSRange(location: start, length: end - start))
     }
 
     private func dismissPopup() {

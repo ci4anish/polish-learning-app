@@ -5,8 +5,6 @@ struct TranslationPopup: View {
     let translation: TranslationResult?
     let onDismiss: () -> Void
 
-    @State private var appeared = false
-
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             header
@@ -15,11 +13,6 @@ struct TranslationPopup: View {
         }
         .padding(YapsTheme.padding)
         .glassEffect(.regular, in: .rect(cornerRadius: YapsTheme.cornerRadius))
-        .scaleEffect(appeared ? 1 : 0.9)
-        .opacity(appeared ? 1 : 0)
-        .onAppear {
-            withAnimation(.spring(duration: 0.4, bounce: 0.3)) { appeared = true }
-        }
     }
 
     private var header: some View {
@@ -67,7 +60,7 @@ struct TranslationPopup: View {
                 AudioButton(text: selectedText)
                     .frame(maxWidth: .infinity)
             }
-            .transition(.blurReplace)
+            .transition(.opacity)
         } else {
             HStack(spacing: 10) {
                 ProgressView()
@@ -77,7 +70,7 @@ struct TranslationPopup: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 8)
-            .transition(.blurReplace)
+            .transition(.opacity)
         }
     }
 }

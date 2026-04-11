@@ -11,16 +11,18 @@ const translateSchema = z.object({
 
 function buildPrompt(text: string, context?: string): string {
   const parts = [
-    `Translate the following Polish text for a language learner: "${text}"`,
+    `You are a Polish→Ukrainian translator for a Ukrainian-speaking language learner.`,
+    ``,
+    `Translate the following Polish text into UKRAINIAN (українською мовою): "${text}"`,
   ];
   if (context) {
     parts.push(`It appears in this context: "${context}"`);
   }
   parts.push(
     "",
-    "Provide in Ukrainian:",
-    "- Accurate translation",
-    "- Part of speech with the native Polish grammar term in parentheses",
+    "IMPORTANT: The translation MUST be in Ukrainian, NOT in Polish or any other language.",
+    "- translation: accurate Ukrainian translation of the Polish text",
+    "- partOfSpeech: part of speech in Ukrainian with the Polish grammar term in parentheses, e.g. 'Прикметник (Przymiotnik)'",
   );
   return parts.join("\n");
 }
@@ -39,7 +41,7 @@ export async function performTranslate(
 
     const response = await client.chat.completions.parse({
       model: GEMINI_MODEL,
-      max_tokens: 512,
+      max_tokens: 128,
       response_format: zodResponseFormat(translateSchema, "translation"),
       messages: [{ role: "user", content: buildPrompt(text, context) }],
     });

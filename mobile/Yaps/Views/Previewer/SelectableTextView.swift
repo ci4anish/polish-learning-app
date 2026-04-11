@@ -107,26 +107,45 @@ struct SelectableTextView: UIViewRepresentable {
 
     class Coordinator: NSObject, UITextViewDelegate {
         let parent: SelectableTextView
+        private var isAdjustingSelection = false
+        private var pendingWork: DispatchWorkItem?
 
         init(_ parent: SelectableTextView) {
             self.parent = parent
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {
+            guard !isAdjustingSelection else { return }
+
+            // Snap to word boundaries immediately so the highlight never shows partial words
             var range = textView.selectedRange
+            if range.length > 0 {
+                let nsText = textView.text as NSString
+                let wordRange = nsText.wordRange(for: range)
+                if wordRange != range {
+                    isAdjustingSelection = true
+                    textView.selectedRange = wordRange
+                    isAdjustingSelection = false
+                }
+            }
+
+            // Debounce the rect computation + SwiftUI callback
+            pendingWork?.cancel()
+            let item = DispatchWorkItem { [weak self] in
+                self?.emitSelection(textView)
+            }
+            pendingWork = item
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: item)
+        }
+
+        private func emitSelection(_ textView: UITextView) {
+            let range = textView.selectedRange
             guard range.length > 0 else {
                 parent.onSelectionChange(nil)
                 return
             }
 
-            // Snap selection to word boundaries so partial-letter grabs still capture full words
             let nsText = textView.text as NSString
-            let wordRange = nsText.wordRange(for: range)
-            if wordRange != range {
-                range = wordRange
-                textView.selectedRange = range
-            }
-
             let text = nsText.substring(with: range)
 
             guard let start = textView.position(from: textView.beginningOfDocument, offset: range.location),
