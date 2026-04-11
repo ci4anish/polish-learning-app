@@ -9,11 +9,11 @@ struct OCRHistoryItem: Codable, Identifiable, Sendable {
     let createdAt: Date
 
     var fullText: String {
-        blocks.map(\.text).joined(separator: "\n\n")
+        blocks.map(\.original).joined(separator: " ")
     }
 
     var preview: String {
-        let text = blocks.first?.text ?? ""
+        let text = blocks.prefix(5).map(\.original).joined(separator: " ")
         return text.count > 120 ? String(text.prefix(120)) + "…" : text
     }
 

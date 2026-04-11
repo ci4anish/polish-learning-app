@@ -11,9 +11,8 @@ const OcrSchema = z.object({
       type: z.enum(["heading", "paragraph"]).describe(
         "heading = titles, all-caps, or prominent standalone lines; paragraph = body text",
       ),
-      text: z.string().describe(
-        "Extracted text with line-break hyphens reconnected (e.g. książ-\\nkę → książkę) and page numbers removed",
-      ),
+      original: z.string().describe("Original phrase or short clause extracted from the image"),
+      translated: z.string().describe("Ukrainian translation of that phrase"),
     }),
   ),
 });
@@ -29,12 +28,25 @@ function buildPrompt(languageHint?: string): string {
     : "";
 
   return [
-    "Extract all text from this image into structured blocks.",
+    "You are an OCR + translator creating an interlinear text for a Ukrainian-speaking language learner.",
     "",
-    `${hint}Preserve the original language. Do not translate or summarize.`,
-    "Merge consecutive lines belonging to the same paragraph.",
-    "Reconnect words hyphenated at line breaks.",
-    "Remove page numbers.",
+    `${hint}Extract all text from this image and translate it into Ukrainian.`,
+    "",
+    "For each visual block (heading or paragraph) in the image:",
+    "1. Split the text into short phrases or clauses (roughly 3-8 words each).",
+    "   Break at natural boundaries: prepositions, conjunctions, punctuation, clause edges.",
+    "2. For each phrase, output an entry with the original text and its Ukrainian translation.",
+    "3. Use type 'heading' for titles, all-caps, or prominent standalone lines; 'paragraph' for body text.",
+    "",
+    "Text processing rules:",
+    "- Reconnect words hyphenated at line breaks (e.g. książ-\\nkę → książkę).",
+    "- Remove page numbers.",
+    "- Preserve the original language in the 'original' field. Do not rewrite it.",
+    "",
+    "Translation rules:",
+    "- The 'translated' field MUST be in Ukrainian using CYRILLIC script (e.g. 'професії', not 'profesiyi').",
+    "- Never transliterate into Latin letters. Always use the Ukrainian Cyrillic alphabet.",
+    "- Keep phrases short enough that each pair reads like an interlinear gloss.",
   ].join("\n");
 }
 
@@ -60,7 +72,7 @@ export async function performOcr(
 
     const response = await client.chat.completions.parse({
       model: GEMINI_MODEL,
-      max_tokens: 4096,
+      max_tokens: 8192,
       response_format: zodResponseFormat(OcrSchema, "ocr_result"),
       messages: [
         {
@@ -105,9 +117,10 @@ export async function performOcr(
       success: true,
       content: {
         detectedLanguage: parsed.detectedLanguage,
-        blocks: parsed.blocks.map((b: z.infer<typeof OcrSchema>["blocks"][number]) => ({
+        blocks: parsed.blocks.map((b) => ({
           type: b.type,
-          text: b.text.trim(),
+          original: b.original.trim(),
+          translated: b.translated.trim(),
         })),
       },
       provider: "gemini",

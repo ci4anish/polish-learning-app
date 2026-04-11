@@ -128,7 +128,7 @@ struct SelectableTextView: UIViewRepresentable {
                     .foregroundColor: UIColor.label,
                     .paragraphStyle: headingParagraph,
                 ]
-                result.append(NSAttributedString(string: block.text, attributes: attrs))
+                result.append(NSAttributedString(string: block.original, attributes: attrs))
 
             case .paragraph:
                 let attrs: [NSAttributedString.Key: Any] = [
@@ -136,7 +136,7 @@ struct SelectableTextView: UIViewRepresentable {
                     .foregroundColor: UIColor.label,
                     .paragraphStyle: bodyParagraph,
                 ]
-                result.append(NSAttributedString(string: block.text, attributes: attrs))
+                result.append(NSAttributedString(string: block.original, attributes: attrs))
             }
         }
 

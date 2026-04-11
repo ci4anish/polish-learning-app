@@ -23,7 +23,7 @@ actor APIService {
         let url = URL(string: "\(baseURL)/api/ocr")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.timeoutInterval = 30
+        request.timeoutInterval = 60
 
         await attachAuthHeader(to: &request)
 

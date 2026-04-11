@@ -10,7 +10,8 @@ export type Variables = {
 
 export type TextBlock = {
   type: "heading" | "paragraph";
-  text: string;
+  original: string;
+  translated: string;
 };
 
 export type OcrContent = {

@@ -7,19 +7,34 @@ struct PreviewerView: View {
     @State private var translationResult: TranslationResult?
     @State private var showTranslationPopup = false
     @State private var debounceTask: Task<Void, Never>?
+    @State private var showBilingual = true
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            SelectableTextView(blocks: ocrResult.blocks) { newSelection in
-                handleSelectionChange(newSelection)
-            }
+            if showBilingual {
+                BilingualTextView(blocks: ocrResult.blocks)
+            } else {
+                SelectableTextView(blocks: ocrResult.blocks) { newSelection in
+                    handleSelectionChange(newSelection)
+                }
 
-            if showTranslationPopup, let selectedText = selection?.text ?? translationResult?.selectedText {
-                translationOverlay(selectedText: selectedText)
+                if showTranslationPopup, let selectedText = selection?.text ?? translationResult?.selectedText {
+                    translationOverlay(selectedText: selectedText)
+                }
             }
         }
         .navigationTitle("Перегляд")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    withAnimation { showBilingual.toggle() }
+                    if showBilingual { dismissPopup() }
+                } label: {
+                    Image(systemName: showBilingual ? "text.justify.leading" : "text.word.spacing")
+                }
+            }
+        }
     }
 
     @ViewBuilder

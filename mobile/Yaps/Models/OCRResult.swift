@@ -1,9 +1,10 @@
 import Foundation
 
 struct TextBlock: Codable, Identifiable, Sendable, Equatable {
-    var id: String { "\(type)-\(text.prefix(40))" }
+    var id: String { "\(type)-\(original.prefix(40))" }
     let type: BlockType
-    let text: String
+    let original: String
+    let translated: String
 
     enum BlockType: String, Codable, Sendable {
         case heading
@@ -16,7 +17,7 @@ struct OCRContent: Codable, Sendable {
     let blocks: [TextBlock]
 
     var fullText: String {
-        blocks.map(\.text).joined(separator: "\n\n")
+        blocks.map(\.original).joined(separator: " ")
     }
 }
 
