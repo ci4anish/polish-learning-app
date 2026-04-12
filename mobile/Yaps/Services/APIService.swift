@@ -260,6 +260,99 @@ actor APIService {
         }
     }
 
+    // MARK: - Chat
+
+    private struct ChatStartRequest: Encodable {
+        let text: String
+        let context: String?
+        let sourceLanguage: String?
+    }
+
+    private struct ChatStartResponse: Decodable {
+        let success: Bool
+        let threadId: String?
+        let error: String?
+    }
+
+    private struct ChatMessageRequest: Encodable {
+        let threadId: String
+        let message: String
+    }
+
+    func chatStart(text: String, context: String? = nil, sourceLanguage: String? = nil) async throws -> String {
+        let url = URL(string: "\(baseURL)/api/chat/start")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 15
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        await attachAuthHeader(to: &request)
+
+        request.httpBody = try JSONEncoder().encode(
+            ChatStartRequest(text: text, context: context, sourceLanguage: sourceLanguage)
+        )
+
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+
+        guard let http = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+
+        let decoded = try JSONDecoder().decode(ChatStartResponse.self, from: data)
+
+        guard decoded.success, let threadId = decoded.threadId else {
+            throw APIError.serverError(decoded.error ?? "Failed to start chat (HTTP \(http.statusCode))")
+        }
+
+        return threadId
+    }
+
+    func streamChatMessage(threadId: String, message: String) async throws -> AsyncThrowingStream<String, Error> {
+        let url = URL(string: "\(baseURL)/api/chat/message")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 120
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        await attachAuthHeader(to: &request)
+
+        request.httpBody = try JSONEncoder().encode(
+            ChatMessageRequest(threadId: threadId, message: message)
+        )
+
+        let (bytes, response) = try await URLSession.shared.bytes(for: request)
+
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw APIError.serverError("Chat stream failed")
+        }
+
+        return AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    var buffer = [UInt8]()
+                    for try await byte in bytes {
+                        buffer.append(byte)
+                        if let text = String(bytes: buffer, encoding: .utf8), !text.isEmpty {
+                            continuation.yield(text)
+                            buffer.removeAll()
+                        }
+                    }
+                    if !buffer.isEmpty, let remaining = String(bytes: buffer, encoding: .utf8) {
+                        continuation.yield(remaining)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+
     nonisolated func loadSampleImage() -> Data? {
         guard let url = Bundle.main.url(forResource: "sample-page", withExtension: "jpg") else { return nil }
         return try? Data(contentsOf: url)

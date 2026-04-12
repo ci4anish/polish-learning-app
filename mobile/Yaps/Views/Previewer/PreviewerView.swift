@@ -8,6 +8,7 @@ struct PreviewerView: View {
     @State private var isTranslating = false
     @State private var translateError: String?
     @State private var translateTask: Task<Void, Never>?
+    @State private var chatViewModel: ChatViewModel?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -31,6 +32,9 @@ struct PreviewerView: View {
         }
         .navigationTitle("Перегляд")
         .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(item: $chatViewModel) { vm in
+            ChatView(viewModel: vm)
+        }
         .onChange(of: selection) { _, newValue in
             translateTask?.cancel()
             translatedText = nil
@@ -144,8 +148,27 @@ struct PreviewerView: View {
 
             Divider()
 
-            AudioButton(text: selection.text)
-                .frame(maxWidth: .infinity)
+            HStack(spacing: 10) {
+                AudioButton(text: selection.text)
+
+                Button {
+                    YapsTheme.hapticTap()
+                    chatViewModel = ChatViewModel(
+                        selectedText: selection.text,
+                        context: selection.sentenceContext != selection.text ? selection.sentenceContext : nil,
+                        sourceLanguage: viewModel.detectedLanguage
+                    )
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sparkles")
+                        Text("Репетитор")
+                    }
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                }
+                .buttonStyle(.glass)
+            }
         }
         .padding(YapsTheme.padding)
         .glassEffect(.regular, in: .rect(cornerRadius: YapsTheme.cornerRadius))

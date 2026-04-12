@@ -45,3 +45,8 @@ export type AudioResult = {
   mimeType?: string;
   error?: string;
 };
+
+export type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
