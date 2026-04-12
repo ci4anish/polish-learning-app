@@ -78,7 +78,6 @@ ocr.post("/stream", async (c) => {
 
   const env = c.env;
   const userId = c.get("userId");
-  const execCtx = c.executionCtx;
   const encoder = new TextEncoder();
 
   c.header("Content-Type", "text/plain; charset=utf-8");
@@ -104,19 +103,14 @@ ocr.post("/stream", async (c) => {
 
     if (userId && blocks.length > 0) {
       const supabase = createSupabaseClient(env);
-      execCtx.waitUntil(
-        Promise.resolve(
-          supabase.from("ocr_history").insert({
-            user_id: userId,
-            detected_language: detectedLanguage,
-            blocks,
-            model: result.model,
-            provider: result.provider,
-          }),
-        ).then(({ error }) => {
-          if (error) console.error("[history] failed to save ocr history:", error.message);
-        }),
-      );
+      const { error } = await supabase.from("ocr_history").insert({
+        user_id: userId,
+        detected_language: detectedLanguage,
+        blocks,
+        model: result.model,
+        provider: result.provider,
+      });
+      if (error) console.error("[history] failed to save ocr history:", error.message);
     }
   });
 });
