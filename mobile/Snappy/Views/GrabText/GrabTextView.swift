@@ -5,8 +5,8 @@ struct GrabTextView: View {
     @State private var showCamera = false
     @State private var viewModel: OCRViewModel?
     @State private var navigateToPreviewer = false
-    @State private var heroScale: CGFloat = 0.8
-    @State private var heroOpacity: CGFloat = 0
+    @State private var isIntroComplete = false
+    @State private var iconPulse = false
 
     private let languageHint = "pl"
 
@@ -15,19 +15,17 @@ struct GrabTextView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-
-            heroSection
-                .scaleEffect(heroScale)
-                .opacity(heroOpacity)
-
-            Spacer()
-
-            actionButtons
-                .padding(.bottom, 32)
+        ZStack {
+            if isIntroComplete {
+                mainContent
+                    .transition(.opacity)
+            } else {
+                introContent
+                    .transition(.opacity)
+            }
         }
-        .navigationTitle("Snappy")
+        .navigationTitle(isIntroComplete ? "Snappy" : "")
+        .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $showCamera) {
             CameraView { image in
                 processImage(image)
@@ -39,33 +37,60 @@ struct GrabTextView: View {
             }
         }
         .onAppear {
-            withAnimation(.spring(duration: 0.8, bounce: 0.4)) {
-                heroScale = 1.0
-                heroOpacity = 1.0
+            withAnimation(.smooth(duration: 0.8).delay(1.2)) {
+                isIntroComplete = true
+            }
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true).delay(2.0)) {
+                iconPulse = true
             }
         }
     }
 
-    private var heroSection: some View {
-        Button {
-            AppTheme.hapticTap()
-            scanAction()
-        } label: {
-            VStack(spacing: 20) {
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .frame(width: 130, height: 130)
-                    .overlay(
-                        Image(systemName: "text.viewfinder")
-                            .font(.system(size: 42, weight: .light))
-                            .foregroundStyle(.tint)
-                    )
+    private var introContent: some View {
+        VStack(spacing: 12) {
+            Spacer()
 
-                Text("Сканувати текст")
-                    .font(AppTheme.titleFont)
-            }
+            Image(systemName: "text.viewfinder")
+                .font(.system(size: 64, weight: .light))
+                .foregroundStyle(Color.accentColor)
+
+            Text("Snappy")
+                .font(.system(size: 42, weight: .bold))
+
+            Text("Вивчай польську легко")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            Spacer()
         }
-        .buttonStyle(.plain)
+    }
+
+    private var mainContent: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            Button {
+                AppTheme.hapticTap()
+                scanAction()
+            } label: {
+                VStack(spacing: 20) {
+                    Image(systemName: "text.viewfinder")
+                        .font(.system(size: 64, weight: .light))
+                        .foregroundStyle(.tint)
+                        .scaleEffect(iconPulse ? 1.08 : 1.0)
+
+                    Text("Клікніть щоб сканувати")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            actionButtons
+                .padding(.bottom, 32)
+        }
     }
 
     private var actionButtons: some View {
