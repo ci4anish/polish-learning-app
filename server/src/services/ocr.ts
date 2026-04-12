@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import type { Bindings, OcrResult } from "../types";
-import { GEMINI_BASE_URL, GEMINI_MODEL } from "../lib/constants";
+import { GEMINI_BASE_URL, GEMINI_OCR_MODEL } from "../lib/constants";
 
 const OcrSchema = z.object({
   detectedLanguage: z.string().describe("ISO 639-1 language code of the primary text language"),
@@ -11,7 +11,7 @@ const OcrSchema = z.object({
       type: z.enum(["heading", "paragraph"]).describe(
         "heading = titles, all-caps, or prominent standalone lines; paragraph = body text",
       ),
-      original: z.string().describe("Full text of this block exactly as it appears in the image"),
+      original: z.string().describe("Full paragraph text with line breaks joined into flowing prose"),
     }),
   ),
 });
@@ -27,16 +27,18 @@ function buildPrompt(languageHint?: string): string {
     : "";
 
   return [
-    "You are an OCR engine extracting text from an image for a language learner.",
+    "You are an OCR engine extracting text from a photo of an open book for a language learner.",
     "",
-    `${hint}Extract all visible text from this image.`,
+    `${hint}Focus ONLY on the single central page the camera is pointed at. Ignore the opposite page, page numbers, headers, footers, marginalia, watermarks, and any text visible at the edges that belongs to another page.`,
     "",
     "Rules:",
-    "- Preserve the original text exactly as written. Do not translate, rewrite, or correct it.",
-    "- Group text into blocks that match the natural visual layout of the image.",
-    "- Each block should be one heading or one paragraph — keep paragraphs whole, do NOT split into sentences.",
-    "- Use type 'heading' for titles, all-caps, or prominent standalone lines; 'paragraph' for body text.",
-    "- Never split words with hyphenations.",
+    "- Output blocks in the same order they appear on the page, top to bottom.",
+    "- Each block must map to one visual paragraph or heading as laid out on the page. Preserve the paragraph structure of the original layout.",
+    "- Merge all printed lines within the same paragraph into ONE block — do NOT create separate blocks for individual lines.",
+    "- Join hyphenated words that wrap across lines (e.g. 'wiedź-\\nmin' → 'wiedźmin').",
+    "- Replace in-line line breaks with spaces so each block reads as continuous flowing text.",
+    "- Preserve the original language exactly. Do not translate, rewrite, or correct spelling.",
+    "- Use type 'heading' for chapter titles, all-caps, or prominent standalone lines; 'paragraph' for body text.",
   ].join("\n");
 }
 
@@ -49,7 +51,7 @@ export async function performOcr(
     return {
       success: false,
       provider: "gemini",
-      model: GEMINI_MODEL,
+      model: GEMINI_OCR_MODEL,
       error: "GEMINI_API_KEY is not configured",
     };
   }
@@ -61,7 +63,7 @@ export async function performOcr(
     });
 
     const response = await client.chat.completions.parse({
-      model: GEMINI_MODEL,
+      model: GEMINI_OCR_MODEL,
       max_tokens: 8192,
       response_format: zodResponseFormat(OcrSchema, "ocr_result"),
       messages: [
@@ -87,7 +89,7 @@ export async function performOcr(
       return {
         success: false,
         provider: "gemini",
-        model: GEMINI_MODEL,
+        model: GEMINI_OCR_MODEL,
         error: `Model refused: ${message.refusal}`,
       };
     }
@@ -98,7 +100,7 @@ export async function performOcr(
       return {
         success: false,
         provider: "gemini",
-        model: GEMINI_MODEL,
+        model: GEMINI_OCR_MODEL,
         error: "No content extracted from image",
       };
     }
@@ -109,11 +111,11 @@ export async function performOcr(
         detectedLanguage: parsed.detectedLanguage,
         blocks: parsed.blocks.map((b) => ({
           type: b.type,
-          original: b.original.trim(),
+          original: b.original.replace(/\n/g, " ").replace(/\s+/g, " ").trim(),
         })),
       },
       provider: "gemini",
-      model: GEMINI_MODEL,
+      model: GEMINI_OCR_MODEL,
       usage: response.usage
         ? {
             prompt_tokens: response.usage.prompt_tokens,
@@ -128,7 +130,7 @@ export async function performOcr(
     return {
       success: false,
       provider: "gemini",
-      model: GEMINI_MODEL,
+      model: GEMINI_OCR_MODEL,
       error: message,
     };
   }
