@@ -234,9 +234,7 @@ actor APIService {
             throw APIError.serverError("Failed to fetch history")
         }
 
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        let decoded = try decoder.decode(OCRHistoryResponse.self, from: data)
+        let decoded = try JSONDecoder.supabase.decode(OCRHistoryResponse.self, from: data)
         return decoded.data ?? []
     }
 
@@ -275,6 +273,27 @@ actor APIService {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
     }
+}
+
+extension JSONDecoder {
+    static let supabase: JSONDecoder = {
+        let decoder = JSONDecoder()
+        let withFrac = ISO8601DateFormatter()
+        withFrac.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let withoutFrac = ISO8601DateFormatter()
+        withoutFrac.formatOptions = [.withInternetDateTime]
+        decoder.dateDecodingStrategy = .custom { dec in
+            let container = try dec.singleValueContainer()
+            let string = try container.decode(String.self)
+            if let date = withFrac.date(from: string) { return date }
+            if let date = withoutFrac.date(from: string) { return date }
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Invalid date: \(string)"
+            )
+        }
+        return decoder
+    }()
 }
 
 private extension Data {

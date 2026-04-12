@@ -106,11 +106,15 @@ struct HistoryPlaceholderView: View {
     }
 
     private func loadHistory() async {
-        isLoading = true
+        isLoading = items.isEmpty
         errorMessage = nil
         defer { isLoading = false }
         do {
             items = try await APIService.shared.fetchOCRHistory()
+        } catch is CancellationError {
+            return
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            return
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -163,18 +167,14 @@ struct ProfileView: View {
 struct OCRHistoryDetailView: View {
     let item: OCRHistoryItem
 
-    @State private var viewModel: OCRViewModel?
+    @State private var viewModel: OCRViewModel
+
+    init(item: OCRHistoryItem) {
+        self.item = item
+        self._viewModel = State(initialValue: OCRViewModel(blocks: item.blocks, detectedLanguage: item.detectedLanguage))
+    }
 
     var body: some View {
-        Group {
-            if let vm = viewModel {
-                PreviewerView(viewModel: vm)
-            }
-        }
-        .onAppear {
-            if viewModel == nil {
-                viewModel = OCRViewModel(blocks: item.blocks, detectedLanguage: item.detectedLanguage)
-            }
-        }
+        PreviewerView(viewModel: viewModel)
     }
 }
