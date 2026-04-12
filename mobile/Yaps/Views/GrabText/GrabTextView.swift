@@ -47,19 +47,25 @@ struct GrabTextView: View {
     }
 
     private var heroSection: some View {
-        VStack(spacing: 20) {
-            Circle()
-                .fill(.ultraThinMaterial)
-                .frame(width: 130, height: 130)
-                .overlay(
-                    Image(systemName: "text.viewfinder")
-                        .font(.system(size: 42, weight: .light))
-                        .foregroundStyle(.tint)
-                )
+        Button {
+            YapsTheme.hapticTap()
+            scanAction()
+        } label: {
+            VStack(spacing: 20) {
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .frame(width: 130, height: 130)
+                    .overlay(
+                        Image(systemName: "text.viewfinder")
+                            .font(.system(size: 42, weight: .light))
+                            .foregroundStyle(.tint)
+                    )
 
-            Text("Сканувати текст")
-                .font(YapsTheme.titleFont)
+                Text("Сканувати текст")
+                    .font(YapsTheme.titleFont)
+            }
         }
+        .buttonStyle(.plain)
     }
 
     private var actionButtons: some View {
@@ -94,6 +100,16 @@ struct GrabTextView: View {
             #endif
         }
         .padding(.horizontal, 32)
+    }
+
+    private func scanAction() {
+        if isCameraAvailable {
+            showCamera = true
+        } else {
+            #if targetEnvironment(simulator)
+            useSampleText()
+            #endif
+        }
     }
 
     private func useSampleText() {
