@@ -163,17 +163,18 @@ struct ProfileView: View {
 struct OCRHistoryDetailView: View {
     let item: OCRHistoryItem
 
-    private var translationResult: TranslationResult {
-        TranslationResult(
-            id: UUID(),
-            content: TranslationContent(
-                detectedLanguage: item.detectedLanguage,
-                blocks: item.blocks
-            )
-        )
-    }
+    @State private var viewModel: OCRViewModel?
 
     var body: some View {
-        PreviewerView(translationResult: translationResult)
+        Group {
+            if let vm = viewModel {
+                PreviewerView(viewModel: vm)
+            }
+        }
+        .onAppear {
+            if viewModel == nil {
+                viewModel = OCRViewModel(blocks: item.blocks, detectedLanguage: item.detectedLanguage)
+            }
+        }
     }
 }

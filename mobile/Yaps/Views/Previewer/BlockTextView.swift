@@ -97,9 +97,17 @@ struct BlockTextView: UIViewRepresentable {
     func updateUIView(_ uiView: UITextView, context: Context) {
         context.coordinator.parent = self
         if blocks != context.coordinator.previousBlocks {
+            let isGrowing = blocks.count > context.coordinator.previousBlocks.count
             context.coordinator.previousBlocks = blocks
             let (attrString, ranges) = Self.buildAttributedString(from: blocks)
-            uiView.attributedText = attrString
+
+            if isGrowing {
+                UIView.transition(with: uiView, duration: 0.25, options: .transitionCrossDissolve) {
+                    uiView.attributedText = attrString
+                }
+            } else {
+                uiView.attributedText = attrString
+            }
             context.coordinator.originalRanges = ranges
         }
     }

@@ -5,38 +5,28 @@ import type { Bindings, TranslateResult } from "../types";
 import { GEMINI_BASE_URL, GEMINI_MODEL } from "../lib/constants";
 
 const TranslateSchema = z.object({
-  translated: z.string().describe("Ukrainian translation of the text"),
+  translated: z.string().describe("The Ukrainian (Cyrillic) translation of the input text"),
 });
 
-function buildPrompt(text: string, context?: string, sourceLanguage?: string): string {
-  const parts: string[] = [
-    "You are a translator helping a Ukrainian-speaking language learner.",
-    "",
-    `Translate the following text into Ukrainian.`,
-  ];
+const SYSTEM_PROMPT = [
+  "You are a professional translator. Your ONLY job is to translate text into Ukrainian.",
+  "You MUST output Ukrainian text using Cyrillic script (е.g. А, Б, В, Г…).",
+  "NEVER repeat the original text. NEVER transliterate into Latin letters.",
+  "Provide a natural, fluent, contextually appropriate Ukrainian translation.",
+].join(" ");
+
+function buildUserPrompt(text: string, context?: string, sourceLanguage?: string): string {
+  const parts: string[] = [];
 
   if (sourceLanguage) {
-    parts.push(`The source language is ${sourceLanguage}.`);
+    parts.push(`Source language: ${sourceLanguage}`);
   }
 
   if (context && context !== text) {
-    parts.push(
-      "",
-      `Context (the surrounding sentence): "${context}"`,
-      "",
-      `Text to translate: "${text}"`,
-    );
-  } else {
-    parts.push("", `Text to translate: "${text}"`);
+    parts.push(`Context: «${context}»`);
   }
 
-  parts.push(
-    "",
-    "Rules:",
-    "- Output MUST be in Ukrainian using CYRILLIC script.",
-    "- Never transliterate into Latin letters.",
-    "- Provide a natural, fluent translation.",
-  );
+  parts.push(`Translate into Ukrainian: «${text}»`);
 
   return parts.join("\n");
 }
@@ -62,10 +52,8 @@ export async function performTranslation(
       max_tokens: 1024,
       response_format: zodResponseFormat(TranslateSchema, "translate_result"),
       messages: [
-        {
-          role: "user",
-          content: buildPrompt(text, context, sourceLanguage),
-        },
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: buildUserPrompt(text, context, sourceLanguage) },
       ],
     });
 

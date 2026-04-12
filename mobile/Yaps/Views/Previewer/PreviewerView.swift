@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PreviewerView: View {
-    let translationResult: TranslationResult
+    @Bindable var viewModel: OCRViewModel
 
     @State private var selection: TextSelection?
     @State private var translatedText: String?
@@ -11,8 +11,18 @@ struct PreviewerView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            BlockTextView(blocks: translationResult.blocks) { newSelection in
-                withAnimation { selection = newSelection }
+            if viewModel.blocks.isEmpty && viewModel.isLoading {
+                loadingView
+            } else if let error = viewModel.error, viewModel.blocks.isEmpty {
+                errorView(error)
+            } else {
+                BlockTextView(blocks: viewModel.blocks) { newSelection in
+                    withAnimation { selection = newSelection }
+                }
+            }
+
+            if viewModel.isLoading && !viewModel.blocks.isEmpty {
+                streamingIndicator
             }
 
             if let sel = selection {
@@ -38,7 +48,7 @@ struct PreviewerView: View {
                     let result = try await APIService.shared.translateText(
                         text: sel.text,
                         context: context,
-                        sourceLanguage: translationResult.detectedLanguage
+                        sourceLanguage: viewModel.detectedLanguage
                     )
                     guard !Task.isCancelled else { return }
                     translatedText = result
@@ -49,6 +59,45 @@ struct PreviewerView: View {
                 isTranslating = false
             }
         }
+    }
+
+    private var loadingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.2)
+            Text("Аналізую текст…")
+                .font(YapsTheme.headlineFont)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var streamingIndicator: some View {
+        VStack {
+            Spacer()
+            HStack(spacing: 8) {
+                ProgressView()
+                    .scaleEffect(0.7)
+                Text("Читаю далі…")
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.bottom, 8)
+        }
+    }
+
+    private func errorView(_ message: String) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 36, weight: .light))
+                .foregroundStyle(.secondary)
+            Text(message)
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder

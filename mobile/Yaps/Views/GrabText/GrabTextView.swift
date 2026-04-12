@@ -3,8 +3,7 @@ import UIKit
 
 struct GrabTextView: View {
     @State private var showCamera = false
-    @State private var translationResult: TranslationResult?
-    @State private var isProcessing = false
+    @State private var viewModel: OCRViewModel?
     @State private var navigateToPreviewer = false
     @State private var heroScale: CGFloat = 0.8
     @State private var heroOpacity: CGFloat = 0
@@ -35,13 +34,8 @@ struct GrabTextView: View {
             }
         }
         .navigationDestination(isPresented: $navigateToPreviewer) {
-            if let result = translationResult {
-                PreviewerView(translationResult: result)
-            }
-        }
-        .overlay {
-            if isProcessing {
-                ProcessingOverlay()
+            if let vm = viewModel {
+                PreviewerView(viewModel: vm)
             }
         }
         .onAppear {
@@ -109,49 +103,9 @@ struct GrabTextView: View {
 
     private func processImage(_ imageData: Data?) {
         guard let data = imageData else { return }
-        isProcessing = true
-        Task {
-            do {
-                let result = try await APIService.shared.translate(
-                    imageData: data,
-                    languageHint: languageHint
-                )
-                translationResult = result
-                isProcessing = false
-                navigateToPreviewer = true
-            } catch {
-                print("[GrabText] OCR failed:", error.localizedDescription)
-                isProcessing = false
-            }
-        }
-    }
-}
-
-
-struct ProcessingOverlay: View {
-    @State private var rotation: Double = 0
-
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.3)
-                .ignoresSafeArea()
-
-            VStack(spacing: 16) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 32, weight: .light))
-                    .foregroundStyle(.tint)
-                    .rotationEffect(.degrees(rotation))
-                    .onAppear {
-                        withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
-                            rotation = 360
-                        }
-                    }
-
-                Text("Аналізую текст…")
-                    .font(YapsTheme.headlineFont)
-            }
-            .padding(32)
-            .glassEffect(.regular, in: .rect(cornerRadius: 20))
-        }
+        let vm = OCRViewModel()
+        vm.startOCR(imageData: data, languageHint: languageHint)
+        viewModel = vm
+        navigateToPreviewer = true
     }
 }

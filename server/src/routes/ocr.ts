@@ -1,32 +1,30 @@
 import { Hono } from "hono";
-import type { Bindings, Variables } from "../types";
+import type { Context } from "hono";
+import { stream } from "hono/streaming";
+import type { Bindings, Variables, TextBlock } from "../types";
 import { performOcr } from "../services/ocr";
 import { authMiddleware } from "../middleware/auth";
 import { createSupabaseClient } from "../lib/supabase";
+
+type AppContext = Context<{ Bindings: Bindings; Variables: Variables }>;
 
 const ocr = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 ocr.use(authMiddleware);
 
-ocr.post("/", async (c) => {
+async function extractImage(c: AppContext): Promise<{ imageBase64: string; languageHint?: string } | null> {
   const contentType = c.req.header("content-type") ?? "";
-
-  let imageBase64: string;
-  let languageHint: string | undefined;
 
   if (contentType.includes("application/json")) {
     const body = await c.req.json<{ image?: string; languageHint?: string }>();
-    if (!body.image) {
-      return c.json({ success: false, error: "Missing 'image' field (base64)" }, 400);
-    }
-    imageBase64 = body.image;
-    languageHint = body.languageHint;
-  } else if (contentType.includes("multipart/form-data")) {
+    if (!body.image) return null;
+    return { imageBase64: body.image, languageHint: body.languageHint };
+  }
+
+  if (contentType.includes("multipart/form-data")) {
     const form = await c.req.parseBody();
     const file = form["image"];
-    if (!(file instanceof File)) {
-      return c.json({ success: false, error: "Missing 'image' file in form data" }, 400);
-    }
+    if (!(file instanceof File)) return null;
     const buffer = await file.arrayBuffer();
     const bytes = new Uint8Array(buffer);
     let binary = "";
@@ -34,18 +32,22 @@ ocr.post("/", async (c) => {
       binary += String.fromCharCode(byte);
     }
     const mimeType = file.type || "image/jpeg";
-    imageBase64 = `data:${mimeType};base64,${btoa(binary)}`;
-    if (typeof form["languageHint"] === "string") {
-      languageHint = form["languageHint"];
-    }
-  } else {
-    return c.json(
-      { success: false, error: "Content-Type must be application/json or multipart/form-data" },
-      415,
-    );
+    return {
+      imageBase64: `data:${mimeType};base64,${btoa(binary)}`,
+      languageHint: typeof form["languageHint"] === "string" ? form["languageHint"] : undefined,
+    };
   }
 
-  const result = await performOcr(imageBase64, c.env, languageHint);
+  return null;
+}
+
+ocr.post("/", async (c) => {
+  const input = await extractImage(c);
+  if (!input) {
+    return c.json({ success: false, error: "Missing 'image' field" }, 400);
+  }
+
+  const result = await performOcr(input.imageBase64, c.env, input.languageHint);
 
   const userId = c.get("userId");
   if (userId && result.success && result.content) {
@@ -66,6 +68,57 @@ ocr.post("/", async (c) => {
   }
 
   return c.json(result, result.success ? 200 : 502);
+});
+
+ocr.post("/stream", async (c) => {
+  const input = await extractImage(c);
+  if (!input) {
+    return c.json({ success: false, error: "Missing 'image' field" }, 400);
+  }
+
+  const env = c.env;
+  const userId = c.get("userId");
+  const execCtx = c.executionCtx;
+  const encoder = new TextEncoder();
+
+  c.header("Content-Type", "text/plain; charset=utf-8");
+  c.header("X-Content-Type-Options", "nosniff");
+
+  return stream(c, async (s) => {
+    const result = await performOcr(input.imageBase64, env, input.languageHint);
+
+    if (!result.success || !result.content) {
+      await s.write(encoder.encode(JSON.stringify({ event: "error", error: result.error ?? "OCR failed" }) + "\n"));
+      return;
+    }
+
+    const { detectedLanguage, blocks } = result.content;
+
+    await s.write(encoder.encode(JSON.stringify({ event: "meta", detectedLanguage }) + "\n"));
+
+    for (const block of blocks) {
+      await s.write(encoder.encode(JSON.stringify({ event: "block", block }) + "\n"));
+    }
+
+    await s.write(encoder.encode(JSON.stringify({ event: "done" }) + "\n"));
+
+    if (userId && blocks.length > 0) {
+      const supabase = createSupabaseClient(env);
+      execCtx.waitUntil(
+        Promise.resolve(
+          supabase.from("ocr_history").insert({
+            user_id: userId,
+            detected_language: detectedLanguage,
+            blocks,
+            model: result.model,
+            provider: result.provider,
+          }),
+        ).then(({ error }) => {
+          if (error) console.error("[history] failed to save ocr history:", error.message);
+        }),
+      );
+    }
+  });
 });
 
 export default ocr;

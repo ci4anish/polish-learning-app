@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
-import type { Bindings, OcrResult } from "../types";
+import type { Bindings, OcrResult, TextBlock } from "../types";
 import { GEMINI_BASE_URL, GEMINI_OCR_MODEL } from "../lib/constants";
 
 const OcrSchema = z.object({
@@ -135,3 +135,4 @@ export async function performOcr(
     };
   }
 }
+

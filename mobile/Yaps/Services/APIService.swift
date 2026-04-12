@@ -61,6 +61,85 @@ actor APIService {
         return TranslationResult(id: UUID(), content: decoded.content!)
     }
 
+    enum OCRStreamEvent {
+        case meta(detectedLanguage: String)
+        case block(TextBlock)
+        case error(String)
+        case done
+    }
+
+    func streamOCR(imageData: Data, languageHint: String? = nil) async throws -> AsyncThrowingStream<OCRStreamEvent, Error> {
+        let url = URL(string: "\(baseURL)/api/ocr/stream")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 90
+
+        await attachAuthHeader(to: &request)
+
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var body = Data()
+        body.appendMultipart(boundary: boundary, name: "image", filename: "photo.jpg", mimeType: "image/jpeg", data: imageData)
+        if let hint = languageHint {
+            body.appendMultipart(boundary: boundary, name: "languageHint", value: hint)
+        }
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+
+        let (bytes, response) = try await URLSession.shared.bytes(for: request)
+
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw APIError.serverError("OCR stream failed")
+        }
+
+        return AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    for try await line in bytes.lines {
+                        guard !line.isEmpty,
+                              let data = line.data(using: .utf8) else { continue }
+                        Self.parseNDJSONLine(data, continuation: continuation)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+
+    private static func parseNDJSONLine(
+        _ data: Data,
+        continuation: AsyncThrowingStream<OCRStreamEvent, Error>.Continuation
+    ) {
+        struct Envelope: Decodable {
+            let event: String
+            let detectedLanguage: String?
+            let block: TextBlock?
+            let error: String?
+        }
+
+        guard let envelope = try? JSONDecoder().decode(Envelope.self, from: data) else { return }
+
+        switch envelope.event {
+        case "meta":
+            if let lang = envelope.detectedLanguage {
+                continuation.yield(.meta(detectedLanguage: lang))
+            }
+        case "block":
+            if let block = envelope.block {
+                continuation.yield(.block(block))
+            }
+        case "error":
+            continuation.yield(.error(envelope.error ?? "Unknown error"))
+        case "done":
+            continuation.yield(.done)
+        default:
+            break
+        }
+    }
+
     private struct ErrorResponse: Decodable { let error: String? }
 
     private struct TranslateRequest: Encodable {

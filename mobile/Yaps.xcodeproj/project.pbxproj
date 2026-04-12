@@ -22,6 +22,7 @@
 		A41407B5DF949C0CF8718465 /* LanguageSelectorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE706C9608CC2C5BE28E910C /* LanguageSelectorSheet.swift */; };
 		A431A5016ED2634005F2F238 /* YapsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674FCD22BB88FBD6D023E555 /* YapsApp.swift */; };
 		C228EC3617BF9056D8AE8776 /* TranslationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4668EB4DEB0820AA945BB405 /* TranslationResult.swift */; };
+		D1A2B3C4D5E6F70819A0B1C0 /* OCRViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A2B3C4D5E6F70819A0B1C1 /* OCRViewModel.swift */; };
 		EA4AA42A8A60B4F95F6686F5 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FF9E9FFE2350657C64DF91E /* LoginView.swift */; };
 		F0F60D91009D4CC7E066BBF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 391EADC11CB3DA038B06D0B8 /* Assets.xcassets */; };
 		F2C4C6A6CDD5313BE83F2B42 /* YapsTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCAD7DE22C0673691627AE71 /* YapsTheme.swift */; };
@@ -35,6 +36,7 @@
 		34A569314CD9D3FD3E659E79 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		391EADC11CB3DA038B06D0B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4668EB4DEB0820AA945BB405 /* TranslationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationResult.swift; sourceTree = "<group>"; };
+		D1A2B3C4D5E6F70819A0B1C1 /* OCRViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRViewModel.swift; sourceTree = "<group>"; };
 		4D4F747C2FE41CE57EBF2893 /* Yaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64649C389244124560F7EFC6 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		66CC3C1D0A968E5FE84399AC /* ContentLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLanguage.swift; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 			children = (
 				66CC3C1D0A968E5FE84399AC /* ContentLanguage.swift */,
 				21E629712E8CBE3B72A445FB /* HistoryItem.swift */,
+				D1A2B3C4D5E6F70819A0B1C1 /* OCRViewModel.swift */,
 				4668EB4DEB0820AA945BB405 /* TranslationResult.swift */,
 			);
 			path = Models;
@@ -282,6 +285,7 @@
 				9A4ACB6745B1A92CEF13760E /* HistoryItem.swift in Sources */,
 				A41407B5DF949C0CF8718465 /* LanguageSelectorSheet.swift in Sources */,
 				EA4AA42A8A60B4F95F6686F5 /* LoginView.swift in Sources */,
+				D1A2B3C4D5E6F70819A0B1C0 /* OCRViewModel.swift in Sources */,
 				C228EC3617BF9056D8AE8776 /* TranslationResult.swift in Sources */,
 				3584D019EE0A157E41CE46ED /* PreviewerView.swift in Sources */,
 				A431A5016ED2634005F2F238 /* YapsApp.swift in Sources */,
