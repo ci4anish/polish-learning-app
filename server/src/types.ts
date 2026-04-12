@@ -11,7 +11,6 @@ export type Variables = {
 export type TextBlock = {
   type: "heading" | "paragraph";
   original: string;
-  translated: string;
 };
 
 export type OcrContent = {
@@ -31,6 +30,12 @@ export type OcrResult = {
   provider: string;
   model: string;
   usage?: UsageInfo;
+  error?: string;
+};
+
+export type TranslateResult = {
+  success: boolean;
+  translated?: string;
   error?: string;
 };
 

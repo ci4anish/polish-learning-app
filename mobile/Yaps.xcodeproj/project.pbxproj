@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A2B3C4D5E6F70819A0B1C2D /* BilingualTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F70819A0B1C2E /* BilingualTextView.swift */; };
+		1A2B3C4D5E6F70819A0B1C2D /* BlockTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F70819A0B1C2E /* BlockTextView.swift */; };
 		29665FFFC60A4840E3A457E9 /* GrabTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C72A892F0F15471E9AAE05 /* GrabTextView.swift */; };
 		296D635CE7F3284F5C7B69FA /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70594E455FAB4B1AE14BC029 /* AuthService.swift */; };
 		3584D019EE0A157E41CE46ED /* PreviewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26DBAD756BAB41765DD0DBBF /* PreviewerView.swift */; };
@@ -28,7 +28,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1A2B3C4D5E6F70819A0B1C2E /* BilingualTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilingualTextView.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F70819A0B1C2E /* BlockTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockTextView.swift; sourceTree = "<group>"; };
 		14C72A892F0F15471E9AAE05 /* GrabTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrabTextView.swift; sourceTree = "<group>"; };
 		21E629712E8CBE3B72A445FB /* HistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryItem.swift; sourceTree = "<group>"; };
 		26DBAD756BAB41765DD0DBBF /* PreviewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewerView.swift; sourceTree = "<group>"; };
@@ -121,7 +121,7 @@
 		51FC6F5F0E8D9C6C709782EE /* Previewer */ = {
 			isa = PBXGroup;
 			children = (
-				1A2B3C4D5E6F70819A0B1C2E /* BilingualTextView.swift */,
+				1A2B3C4D5E6F70819A0B1C2E /* BlockTextView.swift */,
 				26DBAD756BAB41765DD0DBBF /* PreviewerView.swift */,
 			);
 			path = Previewer;
@@ -274,7 +274,7 @@
 				42429619B489004B3BC8F924 /* APIService.swift in Sources */,
 				7135B42AD30401B2540170BE /* AppConfig.swift in Sources */,
 				5BB036706E3445A886901063 /* AudioButton.swift in Sources */,
-				1A2B3C4D5E6F70819A0B1C2D /* BilingualTextView.swift in Sources */,
+				1A2B3C4D5E6F70819A0B1C2D /* BlockTextView.swift in Sources */,
 				296D635CE7F3284F5C7B69FA /* AuthService.swift in Sources */,
 				840DEE1A9B4C31C4B31B689E /* CameraView.swift in Sources */,
 				661B58055D462E4D14C942E4 /* ContentLanguage.swift in Sources */,

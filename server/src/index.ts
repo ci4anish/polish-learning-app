@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import type { Bindings, Variables } from "./types";
-import translateRoute from "./routes/translate";
+import ocrRoute from "./routes/ocr";
 import historyRoute from "./routes/history";
 import audioRoute from "./routes/audio";
+import translateRoute from "./routes/translate";
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
@@ -20,8 +21,9 @@ app.get("/api/health/supabase", async (c) => {
   return c.json({ connected: true });
 });
 
-app.route("/api/translate", translateRoute);
+app.route("/api/ocr", ocrRoute);
 app.route("/api/history", historyRoute);
 app.route("/api/audio", audioRoute);
+app.route("/api/translate", translateRoute);
 
 export default app;

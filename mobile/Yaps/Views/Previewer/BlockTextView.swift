@@ -30,7 +30,7 @@ private extension NSString {
     }
 }
 
-private let originalRangesKey = NSAttributedString.Key("bilingualOriginalRanges")
+private let originalRangesKey = NSAttributedString.Key("blockTextOriginalRanges")
 
 private class MenuFreeTextView: UITextView {
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
@@ -59,9 +59,14 @@ private class TouchObserver: UIGestureRecognizer {
     override func canBePrevented(by preventingGestureRecognizer: UIGestureRecognizer) -> Bool { false }
 }
 
-struct BilingualTextView: UIViewRepresentable {
+struct TextSelection: Equatable {
+    let text: String
+    let sentenceContext: String
+}
+
+struct BlockTextView: UIViewRepresentable {
     let blocks: [TextBlock]
-    var onSelectionChange: ((String?) -> Void)?
+    var onSelectionChange: ((TextSelection?) -> Void)?
 
     func makeUIView(context: Context) -> UITextView {
         let textView = MenuFreeTextView()
@@ -107,25 +112,14 @@ struct BilingualTextView: UIViewRepresentable {
         let result = NSMutableAttributedString()
         var originalRanges: [NSRange] = []
 
-        let originalBodyParagraph = NSMutableParagraphStyle()
-        originalBodyParagraph.lineSpacing = 4
-        originalBodyParagraph.paragraphSpacingBefore = 0
-        originalBodyParagraph.paragraphSpacing = 2
+        let bodyParagraph = NSMutableParagraphStyle()
+        bodyParagraph.lineSpacing = 4
+        bodyParagraph.paragraphSpacing = 14
 
-        let translatedBodyParagraph = NSMutableParagraphStyle()
-        translatedBodyParagraph.lineSpacing = 4
-        translatedBodyParagraph.paragraphSpacingBefore = 0
-        translatedBodyParagraph.paragraphSpacing = 14
-
-        let originalHeadingParagraph = NSMutableParagraphStyle()
-        originalHeadingParagraph.lineSpacing = 4
-        originalHeadingParagraph.alignment = .center
-        originalHeadingParagraph.paragraphSpacing = 2
-
-        let translatedHeadingParagraph = NSMutableParagraphStyle()
-        translatedHeadingParagraph.lineSpacing = 4
-        translatedHeadingParagraph.alignment = .center
-        translatedHeadingParagraph.paragraphSpacing = 14
+        let headingParagraph = NSMutableParagraphStyle()
+        headingParagraph.lineSpacing = 4
+        headingParagraph.alignment = .center
+        headingParagraph.paragraphSpacing = 14
 
         for (i, block) in blocks.enumerated() {
             if i > 0 { result.append(NSAttributedString(string: "\n")) }
@@ -134,41 +128,23 @@ struct BilingualTextView: UIViewRepresentable {
 
             switch block.type {
             case .heading:
-                let origAttrs: [NSAttributedString.Key: Any] = [
+                let attrs: [NSAttributedString.Key: Any] = [
                     .font: UIFont.systemFont(ofSize: 22, weight: .bold),
                     .foregroundColor: UIColor.label,
-                    .paragraphStyle: originalHeadingParagraph,
+                    .paragraphStyle: headingParagraph,
                 ]
-                result.append(NSAttributedString(string: block.original, attributes: origAttrs))
-                originalRanges.append(NSRange(location: originalStart, length: result.length - originalStart))
-
-                result.append(NSAttributedString(string: "\n"))
-
-                let transAttrs: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 20, weight: .medium),
-                    .foregroundColor: UIColor.secondaryLabel,
-                    .paragraphStyle: translatedHeadingParagraph,
-                ]
-                result.append(NSAttributedString(string: block.translated, attributes: transAttrs))
+                result.append(NSAttributedString(string: block.original, attributes: attrs))
 
             case .paragraph:
-                let origAttrs: [NSAttributedString.Key: Any] = [
+                let attrs: [NSAttributedString.Key: Any] = [
                     .font: UIFont.systemFont(ofSize: 18, weight: .regular),
                     .foregroundColor: UIColor.label,
-                    .paragraphStyle: originalBodyParagraph,
+                    .paragraphStyle: bodyParagraph,
                 ]
-                result.append(NSAttributedString(string: block.original, attributes: origAttrs))
-                originalRanges.append(NSRange(location: originalStart, length: result.length - originalStart))
-
-                result.append(NSAttributedString(string: "\n"))
-
-                let transAttrs: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 17, weight: .regular),
-                    .foregroundColor: UIColor.secondaryLabel,
-                    .paragraphStyle: translatedBodyParagraph,
-                ]
-                result.append(NSAttributedString(string: block.translated, attributes: transAttrs))
+                result.append(NSAttributedString(string: block.original, attributes: attrs))
             }
+
+            originalRanges.append(NSRange(location: originalStart, length: result.length - originalStart))
         }
 
         return (result, originalRanges)
@@ -177,14 +153,14 @@ struct BilingualTextView: UIViewRepresentable {
     // MARK: - Coordinator
 
     class Coordinator: NSObject, UITextViewDelegate, UIGestureRecognizerDelegate {
-        var parent: BilingualTextView
+        var parent: BlockTextView
         var previousBlocks: [TextBlock]
         var originalRanges: [NSRange] = []
         private var isAdjustingSelection = false
         private var isTouching = false
         private var needsEmit = false
 
-        init(_ parent: BilingualTextView) {
+        init(_ parent: BlockTextView) {
             self.parent = parent
             self.previousBlocks = parent.blocks
         }
@@ -271,8 +247,19 @@ struct BilingualTextView: UIViewRepresentable {
             }
 
             let nsText = textView.text as NSString
-            let text = nsText.substring(with: range)
-            parent.onSelectionChange?(text)
+            let selectedText = nsText.substring(with: range)
+
+            let blockContext: String
+            if let blockRange = originalRanges.first(where: {
+                range.location >= $0.location &&
+                range.location + range.length <= $0.location + $0.length
+            }) {
+                blockContext = nsText.substring(with: blockRange)
+            } else {
+                blockContext = selectedText
+            }
+
+            parent.onSelectionChange?(TextSelection(text: selectedText, sentenceContext: blockContext))
         }
     }
 }

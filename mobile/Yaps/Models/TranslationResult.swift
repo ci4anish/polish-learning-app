@@ -4,7 +4,6 @@ struct TextBlock: Codable, Identifiable, Sendable, Equatable {
     var id: String { "\(type)-\(original.prefix(40))" }
     let type: BlockType
     let original: String
-    let translated: String
 
     enum BlockType: String, Codable, Sendable {
         case heading

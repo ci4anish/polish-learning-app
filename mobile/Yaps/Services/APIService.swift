@@ -20,7 +20,7 @@ actor APIService {
     }
 
     func translate(imageData: Data, languageHint: String? = nil) async throws -> TranslationResult {
-        let url = URL(string: "\(baseURL)/api/translate")!
+        let url = URL(string: "\(baseURL)/api/ocr")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.timeoutInterval = 60
@@ -62,6 +62,51 @@ actor APIService {
     }
 
     private struct ErrorResponse: Decodable { let error: String? }
+
+    private struct TranslateRequest: Encodable {
+        let text: String
+        let context: String?
+        let sourceLanguage: String?
+    }
+
+    private struct TranslateResponse: Decodable {
+        let success: Bool
+        let translated: String?
+        let error: String?
+    }
+
+    func translateText(text: String, context: String? = nil, sourceLanguage: String? = nil) async throws -> String {
+        let url = URL(string: "\(baseURL)/api/translate")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 30
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        await attachAuthHeader(to: &request)
+
+        request.httpBody = try JSONEncoder().encode(
+            TranslateRequest(text: text, context: context, sourceLanguage: sourceLanguage)
+        )
+
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+
+        guard let http = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+
+        let decoded = try JSONDecoder().decode(TranslateResponse.self, from: data)
+
+        guard decoded.success, let translated = decoded.translated else {
+            throw APIError.serverError(decoded.error ?? "Translation failed (HTTP \(http.statusCode))")
+        }
+
+        return translated
+    }
 
     func getAudio(text: String, language: String = "Polish") async throws -> Data {
         let url = URL(string: "\(baseURL)/api/audio")!
