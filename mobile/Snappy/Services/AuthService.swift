@@ -42,7 +42,7 @@ final class AuthService {
         do {
             try await supabase.auth.signInWithOAuth(
                 provider: .google,
-                redirectTo: URL(string: "com.yaps.app://auth/callback")
+                redirectTo: URL(string: "com.tpohoretskyi.snappy://auth/callback")
             )
         } catch {
             print("[Auth] signInWithGoogle error: \(error)")

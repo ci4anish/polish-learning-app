@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum YapsTheme {
+enum AppTheme {
     static let cornerRadius: CGFloat = 16
     static let smallCornerRadius: CGFloat = 10
     static let padding: CGFloat = 16

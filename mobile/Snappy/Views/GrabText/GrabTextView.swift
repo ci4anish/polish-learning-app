@@ -27,7 +27,7 @@ struct GrabTextView: View {
             actionButtons
                 .padding(.bottom, 32)
         }
-        .navigationTitle("Yaps")
+        .navigationTitle("Snappy")
         .fullScreenCover(isPresented: $showCamera) {
             CameraView { image in
                 processImage(image)
@@ -48,7 +48,7 @@ struct GrabTextView: View {
 
     private var heroSection: some View {
         Button {
-            YapsTheme.hapticTap()
+            AppTheme.hapticTap()
             scanAction()
         } label: {
             VStack(spacing: 20) {
@@ -62,7 +62,7 @@ struct GrabTextView: View {
                     )
 
                 Text("Сканувати текст")
-                    .font(YapsTheme.titleFont)
+                    .font(AppTheme.titleFont)
             }
         }
         .buttonStyle(.plain)
@@ -72,11 +72,11 @@ struct GrabTextView: View {
         VStack(spacing: 12) {
             if isCameraAvailable {
                 Button {
-                    YapsTheme.hapticTap()
+                    AppTheme.hapticTap()
                     showCamera = true
                 } label: {
                     Label("Сканувати", systemImage: "camera.fill")
-                        .font(YapsTheme.headlineFont)
+                        .font(AppTheme.headlineFont)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
                 }
@@ -85,14 +85,14 @@ struct GrabTextView: View {
 
             #if targetEnvironment(simulator)
             Button {
-                YapsTheme.hapticTap()
+                AppTheme.hapticTap()
                 useSampleText()
             } label: {
                 Label(
                     isCameraAvailable ? "Використати зразок" : "Спробувати зразок",
                     systemImage: "doc.text.image.fill"
                 )
-                .font(YapsTheme.headlineFont)
+                .font(AppTheme.headlineFont)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
             }

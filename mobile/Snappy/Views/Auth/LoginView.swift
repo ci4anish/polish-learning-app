@@ -12,7 +12,7 @@ struct LoginView: View {
                     .font(.system(size: 64, weight: .light))
                     .foregroundStyle(Color.accentColor)
 
-                Text("Yaps")
+                Text("Snappy")
                     .font(.system(size: 42, weight: .bold))
 
                 Text("Вивчай польську легко")

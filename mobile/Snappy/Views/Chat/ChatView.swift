@@ -67,9 +67,9 @@ struct ChatView: View {
                             .id(message.id)
                     }
                 }
-                .padding(.horizontal, YapsTheme.padding)
-                .padding(.top, YapsTheme.padding)
-                .padding(.bottom, YapsTheme.largePadding)
+                .padding(.horizontal, AppTheme.padding)
+                .padding(.top, AppTheme.padding)
+                .padding(.bottom, AppTheme.largePadding)
             }
             .scrollDismissesKeyboard(.interactively)
             .onChange(of: viewModel.messages.last?.content) { _, _ in
@@ -104,7 +104,7 @@ struct ChatView: View {
                 .focused($isInputFocused)
 
             Button {
-                YapsTheme.hapticTap()
+                AppTheme.hapticTap()
                 viewModel.sendMessage()
             } label: {
                 Image(systemName: "arrow.up.circle.fill")
@@ -114,8 +114,8 @@ struct ChatView: View {
             .disabled(viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isStreaming)
             .opacity(viewModel.isStreaming ? 0.4 : 1.0)
         }
-        .padding(.horizontal, YapsTheme.padding)
-        .padding(.vertical, YapsTheme.smallPadding)
+        .padding(.horizontal, AppTheme.padding)
+        .padding(.vertical, AppTheme.smallPadding)
         .background(.bar)
     }
 }
@@ -142,7 +142,7 @@ private struct MessageBubble: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(bubbleBackground, in: .rect(cornerRadius: YapsTheme.cornerRadius))
+            .background(bubbleBackground, in: .rect(cornerRadius: AppTheme.cornerRadius))
 
             if message.role == .assistant { Spacer(minLength: 8) }
         }
@@ -151,7 +151,7 @@ private struct MessageBubble: View {
     @ViewBuilder
     private var contentView: some View {
         Markdown(message.content)
-            .markdownTheme(.yaps)
+            .markdownTheme(.theme)
     }
 
     private var bubbleBackground: some ShapeStyle {
@@ -188,7 +188,7 @@ private struct TypingIndicator: View {
 }
 
 extension MarkdownUI.Theme {
-    @MainActor static let yaps = Theme()
+    @MainActor static let theme = Theme()
         .text {
             FontFamily(.system(.rounded))
             FontSize(17)

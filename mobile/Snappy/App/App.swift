@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct YapsApp: App {
+struct MainApp: App {
     @State private var auth = AuthService.shared
 
     var body: some Scene {

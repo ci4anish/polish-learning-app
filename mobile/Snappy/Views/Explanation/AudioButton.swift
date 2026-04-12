@@ -14,7 +14,7 @@ struct AudioButton: View {
     var body: some View {
         Button {
             guard !isLoading else { return }
-            YapsTheme.hapticTap()
+            AppTheme.hapticTap()
             Task { await togglePlayback() }
         } label: {
             HStack(spacing: 6) {

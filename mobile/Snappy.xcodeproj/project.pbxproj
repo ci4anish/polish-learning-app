@@ -23,12 +23,12 @@
 		8110AF2854D0FE7EBBBE3EDC /* sample-page.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CE9783A93C90160769C708B0 /* sample-page.jpg */; };
 		840DEE1A9B4C31C4B31B689E /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64649C389244124560F7EFC6 /* CameraView.swift */; };
 		9A4ACB6745B1A92CEF13760E /* HistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21E629712E8CBE3B72A445FB /* HistoryItem.swift */; };
-		A431A5016ED2634005F2F238 /* YapsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674FCD22BB88FBD6D023E555 /* YapsApp.swift */; };
+		A431A5016ED2634005F2F238 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674FCD22BB88FBD6D023E555 /* App.swift */; };
 		C228EC3617BF9056D8AE8776 /* TranslationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4668EB4DEB0820AA945BB405 /* TranslationResult.swift */; };
 		D1A2B3C4D5E6F70819A0B1C0 /* OCRViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A2B3C4D5E6F70819A0B1C1 /* OCRViewModel.swift */; };
 		EA4AA42A8A60B4F95F6686F5 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FF9E9FFE2350657C64DF91E /* LoginView.swift */; };
 		F0F60D91009D4CC7E066BBF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 391EADC11CB3DA038B06D0B8 /* Assets.xcassets */; };
-		F2C4C6A6CDD5313BE83F2B42 /* YapsTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCAD7DE22C0673691627AE71 /* YapsTheme.swift */; };
+		F2C4C6A6CDD5313BE83F2B42 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCAD7DE22C0673691627AE71 /* AppTheme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,10 +43,10 @@
 		391EADC11CB3DA038B06D0B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4668EB4DEB0820AA945BB405 /* TranslationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationResult.swift; sourceTree = "<group>"; };
 		D1A2B3C4D5E6F70819A0B1C1 /* OCRViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRViewModel.swift; sourceTree = "<group>"; };
-		4D4F747C2FE41CE57EBF2893 /* Yaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D4F747C2FE41CE57EBF2893 /* Snappy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Snappy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64649C389244124560F7EFC6 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		66CC3C1D0A968E5FE84399AC /* ContentLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLanguage.swift; sourceTree = "<group>"; };
-		674FCD22BB88FBD6D023E555 /* YapsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapsApp.swift; sourceTree = "<group>"; };
+		674FCD22BB88FBD6D023E555 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		70594E455FAB4B1AE14BC029 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		84C4F39354FEA0DD8340312B /* AudioButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioButton.swift; sourceTree = "<group>"; };
 		8FF9E9FFE2350657C64DF91E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -54,7 +54,7 @@
 		B7A5C53021AFB460192747EA /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		C804D86DBFD207D26119F5D4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		CE9783A93C90160769C708B0 /* sample-page.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample-page.jpg"; sourceTree = "<group>"; };
-		FCAD7DE22C0673691627AE71 /* YapsTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapsTheme.swift; sourceTree = "<group>"; };
+		FCAD7DE22C0673691627AE71 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,7 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				34A569314CD9D3FD3E659E79 /* AppConfig.swift */,
-				674FCD22BB88FBD6D023E555 /* YapsApp.swift */,
+				674FCD22BB88FBD6D023E555 /* App.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -105,7 +105,7 @@
 		3F8FC060290DB970390F6466 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4D4F747C2FE41CE57EBF2893 /* Yaps.app */,
+				4D4F747C2FE41CE57EBF2893 /* Snappy.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -177,12 +177,12 @@
 			isa = PBXGroup;
 			children = (
 				41F0A13AD53DC2D06F118776 /* Configs */,
-				BB9147822E118F5BB32CB4FF /* Yaps */,
+				BB9147822E118F5BB32CB4FF /* Snappy */,
 				3F8FC060290DB970390F6466 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		BB9147822E118F5BB32CB4FF /* Yaps */ = {
+		BB9147822E118F5BB32CB4FF /* Snappy */ = {
 			isa = PBXGroup;
 			children = (
 				391EADC11CB3DA038B06D0B8 /* Assets.xcassets */,
@@ -195,13 +195,13 @@
 				DF5D3279077B0D838EB53D8C /* Theme */,
 				8BBC96095127A99967BACBC6 /* Views */,
 			);
-			path = Yaps;
+			path = Snappy;
 			sourceTree = "<group>";
 		};
 		DF5D3279077B0D838EB53D8C /* Theme */ = {
 			isa = PBXGroup;
 			children = (
-				FCAD7DE22C0673691627AE71 /* YapsTheme.swift */,
+				FCAD7DE22C0673691627AE71 /* AppTheme.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -222,9 +222,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5FAA8A086595CCD52D4B86D5 /* Yaps */ = {
+		5FAA8A086595CCD52D4B86D5 /* Snappy */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 436982C4708B4803E55F9D30 /* Build configuration list for PBXNativeTarget "Yaps" */;
+			buildConfigurationList = 436982C4708B4803E55F9D30 /* Build configuration list for PBXNativeTarget "Snappy" */;
 			buildPhases = (
 				CC081C839229B22DBA66EFC7 /* Sources */,
 				39105154FF27BBAE377F149F /* Resources */,
@@ -234,13 +234,13 @@
 			);
 			dependencies = (
 			);
-			name = Yaps;
+			name = Snappy;
 			packageProductDependencies = (
 				E2365B3E14832566FFD307D2 /* Supabase */,
 				C9A2B3C4D5E6F70819A0B1C9 /* MarkdownUI */,
 			);
-			productName = Yaps;
-			productReference = 4D4F747C2FE41CE57EBF2893 /* Yaps.app */;
+			productName = Snappy;
+			productReference = 4D4F747C2FE41CE57EBF2893 /* Snappy.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -252,7 +252,7 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 			};
-			buildConfigurationList = AFBDEC7007BFB995643E2E46 /* Build configuration list for PBXProject "Yaps" */;
+			buildConfigurationList = AFBDEC7007BFB995643E2E46 /* Build configuration list for PBXProject "Snappy" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -270,7 +270,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				5FAA8A086595CCD52D4B86D5 /* Yaps */,
+				5FAA8A086595CCD52D4B86D5 /* Snappy */,
 			);
 		};
 /* End PBXProject section */
@@ -308,8 +308,8 @@
 				D1A2B3C4D5E6F70819A0B1C0 /* OCRViewModel.swift in Sources */,
 				C228EC3617BF9056D8AE8776 /* TranslationResult.swift in Sources */,
 				3584D019EE0A157E41CE46ED /* PreviewerView.swift in Sources */,
-				A431A5016ED2634005F2F238 /* YapsApp.swift in Sources */,
-				F2C4C6A6CDD5313BE83F2B42 /* YapsTheme.swift in Sources */,
+				A431A5016ED2634005F2F238 /* App.swift in Sources */,
+				F2C4C6A6CDD5313BE83F2B42 /* AppTheme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,13 +381,13 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3MFU8G98MP;
-				INFOPLIST_FILE = Yaps/Info.plist;
+				INFOPLIST_FILE = Snappy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yaps.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tpohoretskyi.snappy;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -466,13 +466,13 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3MFU8G98MP;
-				INFOPLIST_FILE = Yaps/Info.plist;
+				INFOPLIST_FILE = Snappy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yaps.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tpohoretskyi.snappy;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -482,7 +482,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		436982C4708B4803E55F9D30 /* Build configuration list for PBXNativeTarget "Yaps" */ = {
+		436982C4708B4803E55F9D30 /* Build configuration list for PBXNativeTarget "Snappy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				226911BB057258B2253BEA14 /* Debug */,
@@ -491,7 +491,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		AFBDEC7007BFB995643E2E46 /* Build configuration list for PBXProject "Yaps" */ = {
+		AFBDEC7007BFB995643E2E46 /* Build configuration list for PBXProject "Snappy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5707B728632A7CC18F729E7B /* Debug */,

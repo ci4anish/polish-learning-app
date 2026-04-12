@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Yaps</string>
+	<string>Snappy</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -33,14 +33,14 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.yaps.app</string>
+				<string>com.tpohoretskyi.snappy</string>
 			</array>
 			<key>CFBundleURLName</key>
-			<string>com.yaps.app</string>
+			<string>com.tpohoretskyi.snappy</string>
 		</dict>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Yaps needs camera access to scan Polish text from photos</string>
+	<string>Snappy needs camera access to scan Polish text from photos</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -70,7 +70,7 @@ struct PreviewerView: View {
             ProgressView()
                 .scaleEffect(1.2)
             Text("Аналізую текст…")
-                .font(YapsTheme.headlineFont)
+                .font(AppTheme.headlineFont)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -115,7 +115,7 @@ struct PreviewerView: View {
                 Spacer()
 
                 Button {
-                    YapsTheme.hapticTap()
+                    AppTheme.hapticTap()
                     withAnimation { self.selection = nil }
                 } label: {
                     Image(systemName: "xmark.circle.fill")
@@ -152,7 +152,7 @@ struct PreviewerView: View {
                 AudioButton(text: selection.text)
 
                 Button {
-                    YapsTheme.hapticTap()
+                    AppTheme.hapticTap()
                     chatViewModel = ChatViewModel(
                         selectedText: selection.text,
                         context: selection.sentenceContext != selection.text ? selection.sentenceContext : nil,
@@ -170,10 +170,10 @@ struct PreviewerView: View {
                 .buttonStyle(.glass)
             }
         }
-        .padding(YapsTheme.padding)
-        .glassEffect(.regular, in: .rect(cornerRadius: YapsTheme.cornerRadius))
-        .padding(.horizontal, YapsTheme.padding)
-        .padding(.bottom, YapsTheme.largePadding)
+        .padding(AppTheme.padding)
+        .glassEffect(.regular, in: .rect(cornerRadius: AppTheme.cornerRadius))
+        .padding(.horizontal, AppTheme.padding)
+        .padding(.bottom, AppTheme.largePadding)
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 }
