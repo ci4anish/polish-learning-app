@@ -135,16 +135,16 @@ final class CameraCaptureController: UIViewController {
     }
 }
 
-private final class PhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
-    let completion: (Data?) -> Void
+private final class PhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate, @unchecked Sendable {
+    let completion: @MainActor (Data?) -> Void
 
-    init(completion: @escaping (Data?) -> Void) {
+    init(completion: @escaping @MainActor (Data?) -> Void) {
         self.completion = completion
     }
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         let data = photo.fileDataRepresentation()
-        DispatchQueue.main.async { [self] in
+        Task { @MainActor in
             completion(data)
         }
     }
