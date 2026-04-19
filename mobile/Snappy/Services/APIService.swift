@@ -54,46 +54,6 @@ actor APIService {
         return data
     }
 
-    func fetchOCRHistory() async throws -> [OCRHistoryItem] {
-        let url = URL(string: "\(baseURL)/api/history/ocr")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.timeoutInterval = 15
-
-        await attachAuthHeader(to: &request)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw APIError.serverError("Failed to fetch history")
-        }
-
-        let decoded = try JSONDecoder.supabase.decode(OCRHistoryResponse.self, from: data)
-        return decoded.data ?? []
-    }
-
-    func deleteOCRHistory(id: String) async throws {
-        let url = URL(string: "\(baseURL)/api/history/ocr/\(id)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-        request.timeoutInterval = 15
-        await attachAuthHeader(to: &request)
-
-        let (data, response): (Data, URLResponse)
-        do {
-            (data, response) = try await URLSession.shared.data(for: request)
-        } catch {
-            throw APIError.networkError(error)
-        }
-
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            if let err = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                throw APIError.serverError(err.error ?? "Delete failed")
-            }
-            throw APIError.serverError("Delete failed")
-        }
-    }
-
     // MARK: - Chat
 
     private struct ChatStartRequest: Encodable {
