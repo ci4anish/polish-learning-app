@@ -22,23 +22,14 @@ final class OCRViewModel: @unchecked Sendable {
 
         Task {
             do {
-                let stream = try await APIService.shared.streamOCR(imageData: imageData, languageHint: languageHint)
-                for try await event in stream {
-                    switch event {
-                    case .meta(let lang):
-                        await MainActor.run { self.detectedLanguage = lang }
-                    case .block(let block):
-                        await MainActor.run {
-                            withAnimation(.easeIn(duration: 0.3)) {
-                                self.blocks.append(block)
-                            }
-                        }
-                    case .error(let msg):
-                        await MainActor.run { self.error = msg }
-                    case .done:
-                        break
-                    }
+                let languages = [languageHint ?? "pl"]
+                let result = try await VisionOCRService.recognizeText(from: imageData, languages: languages)
+
+                await MainActor.run {
+                    self.detectedLanguage = result.detectedLanguage
+                    self.blocks = result.blocks
                 }
+
                 await MainActor.run { self.isLoading = false }
             } catch {
                 await MainActor.run {

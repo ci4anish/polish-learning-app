@@ -1,14 +1,9 @@
 import Foundation
 
 struct TextBlock: Codable, Identifiable, Sendable, Equatable {
-    var id: String { "\(type)-\(original.prefix(40))" }
-    let type: BlockType
+    var id: String { "\(relativeHeight)-\(original.prefix(40))" }
+    let relativeHeight: CGFloat
     let original: String
-
-    enum BlockType: String, Codable, Sendable {
-        case heading
-        case paragraph
-    }
 }
 
 struct TranslationContent: Codable, Sendable {

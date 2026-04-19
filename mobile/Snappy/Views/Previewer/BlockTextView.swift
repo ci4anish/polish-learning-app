@@ -120,37 +120,21 @@ struct BlockTextView: UIViewRepresentable {
         let result = NSMutableAttributedString()
         var originalRanges: [NSRange] = []
 
-        let bodyParagraph = NSMutableParagraphStyle()
-        bodyParagraph.lineSpacing = 4
-        bodyParagraph.paragraphSpacing = 14
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 4
+        paragraphStyle.paragraphSpacing = 14
 
-        let headingParagraph = NSMutableParagraphStyle()
-        headingParagraph.lineSpacing = 4
-        headingParagraph.alignment = .center
-        headingParagraph.paragraphSpacing = 14
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 18, weight: .regular),
+            .foregroundColor: UIColor.label,
+            .paragraphStyle: paragraphStyle,
+        ]
 
         for (i, block) in blocks.enumerated() {
             if i > 0 { result.append(NSAttributedString(string: "\n")) }
 
             let originalStart = result.length
-
-            switch block.type {
-            case .heading:
-                let attrs: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 22, weight: .bold),
-                    .foregroundColor: UIColor.label,
-                    .paragraphStyle: headingParagraph,
-                ]
-                result.append(NSAttributedString(string: block.original, attributes: attrs))
-
-            case .paragraph:
-                let attrs: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 18, weight: .regular),
-                    .foregroundColor: UIColor.label,
-                    .paragraphStyle: bodyParagraph,
-                ]
-                result.append(NSAttributedString(string: block.original, attributes: attrs))
-            }
+            result.append(NSAttributedString(string: block.original, attributes: attrs))
 
             originalRanges.append(NSRange(location: originalStart, length: result.length - originalStart))
         }
