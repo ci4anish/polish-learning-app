@@ -7,9 +7,14 @@ struct PreviewerView: View {
     @State private var selection: TextSelection?
     @State private var translatedText: String?
     @State private var isTranslating = false
+    @State private var isEnhancingTranslation = false
+    @State private var translationEnhancedByAI = false
     @State private var translateError: String?
     @State private var translationConfig: TranslationSession.Configuration?
+    @State private var translationEnhanceTask: Task<Void, Never>?
     @State private var chatViewModel: ChatViewModel?
+
+    @AppStorage("useLocalAITranslation") private var useLocalAITranslation = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -27,6 +32,10 @@ struct PreviewerView: View {
                 streamingIndicator
             }
 
+            if viewModel.isEnhancing {
+                enhancingIndicator
+            }
+
             if let sel = selection {
                 selectionOverlay(selection: sel)
             }
@@ -37,8 +46,12 @@ struct PreviewerView: View {
             ChatView(viewModel: vm)
         }
         .onChange(of: selection) { _, newValue in
+            translationEnhanceTask?.cancel()
+            translationEnhanceTask = nil
             translatedText = nil
             translateError = nil
+            isEnhancingTranslation = false
+            translationEnhancedByAI = false
 
             guard newValue != nil else {
                 isTranslating = false
@@ -60,14 +73,54 @@ struct PreviewerView: View {
         }
         .translationTask(translationConfig) { session in
             nonisolated(unsafe) let session = session
-            guard let text = selection?.text else { return }
+            guard let sel = selection else { return }
             do {
-                let response = try await session.translate(text)
+                let response = try await session.translate(sel.text)
                 translatedText = response.targetText
+                isTranslating = false
+                scheduleTranslationEnhancement(for: sel, draft: response.targetText)
             } catch {
                 translateError = error.localizedDescription
+                isTranslating = false
             }
-            isTranslating = false
+        }
+        .onDisappear {
+            translationEnhanceTask?.cancel()
+            translationEnhanceTask = nil
+        }
+    }
+
+    private func scheduleTranslationEnhancement(for sel: TextSelection, draft: String) {
+        guard useLocalAITranslation else { return }
+        guard LocalLLMService.shared.state == .ready else { return }
+
+        let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        let sourceLanguage = viewModel.detectedLanguage ?? "pl"
+        let context = sel.sentenceContext != sel.text ? sel.sentenceContext : nil
+
+        isEnhancingTranslation = true
+        translationEnhancedByAI = false
+
+        translationEnhanceTask = Task { @MainActor in
+            do {
+                let improved = try await LocalLLMService.shared.enhanceTranslation(
+                    selection: sel.text,
+                    context: context,
+                    draft: draft,
+                    sourceLanguage: sourceLanguage,
+                    targetLanguage: "uk"
+                )
+                guard !Task.isCancelled, selection == sel else { return }
+                if !improved.isEmpty && improved != draft {
+                    translatedText = improved
+                    translationEnhancedByAI = true
+                }
+            } catch {
+                // Keep Apple's draft on failure; do not surface error to UI.
+            }
+            isEnhancingTranslation = false
         }
     }
 
@@ -93,6 +146,23 @@ struct PreviewerView: View {
                     .foregroundStyle(.tertiary)
             }
             .padding(.bottom, 8)
+        }
+    }
+
+    private var enhancingIndicator: some View {
+        VStack {
+            HStack(spacing: 8) {
+                ProgressView()
+                    .scaleEffect(0.7)
+                Text("Покращую за допомогою AI…")
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .glassEffect(.regular, in: .capsule)
+            .padding(.top, 12)
+            Spacer()
         }
     }
 
@@ -141,10 +211,29 @@ struct PreviewerView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             } else if let translated = translatedText {
-                Text(translated)
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(translated)
+                        .font(.system(.body, design: .rounded))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    if isEnhancingTranslation {
+                        HStack(spacing: 6) {
+                            ProgressView().scaleEffect(0.6)
+                            Text("Покращую переклад за допомогою AI…")
+                                .font(.system(.caption2, design: .rounded))
+                                .foregroundStyle(.tertiary)
+                        }
+                    } else if translationEnhancedByAI {
+                        HStack(spacing: 4) {
+                            Image(systemName: "sparkles")
+                                .font(.caption2)
+                            Text("Покращено AI")
+                                .font(.system(.caption2, design: .rounded, weight: .medium))
+                        }
+                        .foregroundStyle(.tint)
+                    }
+                }
             } else if let error = translateError {
                 Text(error)
                     .font(.system(.caption, design: .rounded))

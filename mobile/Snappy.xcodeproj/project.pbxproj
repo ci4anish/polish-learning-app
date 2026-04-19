@@ -11,6 +11,8 @@
 		C5A2B3C4D5E6F70819A0B1C5 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A2B3C4D5E6F70819A0B1C2 /* ChatViewModel.swift */; };
 		C6A2B3C4D5E6F70819A0B1C6 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A2B3C4D5E6F70819A0B1C3 /* ChatView.swift */; };
 		C7A2B3C4D5E6F70819A0B1C7 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = C9A2B3C4D5E6F70819A0B1C9 /* MarkdownUI */; };
+		B1B2B3B4B5B6B7B8B9BABBBC /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = B1B2B3B4B5B6B7B8B9BABBBD /* MLXLLM */; };
+		B1B2B3B4B5B6B7B8B9BABBBE /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = B1B2B3B4B5B6B7B8B9BABBBF /* MLXLMCommon */; };
 		1A2B3C4D5E6F70819A0B1C2D /* BlockTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F70819A0B1C2E /* BlockTextView.swift */; };
 		29665FFFC60A4840E3A457E9 /* GrabTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C72A892F0F15471E9AAE05 /* GrabTextView.swift */; };
 		296D635CE7F3284F5C7B69FA /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70594E455FAB4B1AE14BC029 /* AuthService.swift */; };
@@ -30,6 +32,8 @@
 		F0F60D91009D4CC7E066BBF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 391EADC11CB3DA038B06D0B8 /* Assets.xcassets */; };
 		F2C4C6A6CDD5313BE83F2B42 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCAD7DE22C0673691627AE71 /* AppTheme.swift */; };
 		A1B2C3D4E5F60718293A4B5C /* VisionOCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* VisionOCRService.swift */; };
+		E1E2E3E4E5E6E7E8E9EAEBEC /* LocalLLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E2E3E4E5E6E7E8E9EAEBED /* LocalLLMService.swift */; };
+		E1E2E3E4E5E6E7E8E9EAEBEE /* LLMEnhancementPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E2E3E4E5E6E7E8E9EAEBEF /* LLMEnhancementPrompt.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +61,8 @@
 		CE9783A93C90160769C708B0 /* sample-page.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample-page.jpg"; sourceTree = "<group>"; };
 		FCAD7DE22C0673691627AE71 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60718293A4B5D /* VisionOCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionOCRService.swift; sourceTree = "<group>"; };
+		E1E2E3E4E5E6E7E8E9EAEBED /* LocalLLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLLMService.swift; sourceTree = "<group>"; };
+		E1E2E3E4E5E6E7E8E9EAEBEF /* LLMEnhancementPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMEnhancementPrompt.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +72,8 @@
 			files = (
 				6D89ABF30CC52FF3B951BEC2 /* Supabase in Frameworks */,
 				C7A2B3C4D5E6F70819A0B1C7 /* MarkdownUI in Frameworks */,
+				B1B2B3B4B5B6B7B8B9BABBBC /* MLXLLM in Frameworks */,
+				B1B2B3B4B5B6B7B8B9BABBBE /* MLXLMCommon in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +151,8 @@
 				B7A5C53021AFB460192747EA /* APIService.swift */,
 				70594E455FAB4B1AE14BC029 /* AuthService.swift */,
 				A1B2C3D4E5F60718293A4B5D /* VisionOCRService.swift */,
+				E1E2E3E4E5E6E7E8E9EAEBED /* LocalLLMService.swift */,
+				E1E2E3E4E5E6E7E8E9EAEBEF /* LLMEnhancementPrompt.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -241,6 +251,8 @@
 			packageProductDependencies = (
 				E2365B3E14832566FFD307D2 /* Supabase */,
 				C9A2B3C4D5E6F70819A0B1C9 /* MarkdownUI */,
+				B1B2B3B4B5B6B7B8B9BABBBD /* MLXLLM */,
+				B1B2B3B4B5B6B7B8B9BABBBF /* MLXLMCommon */,
 			);
 			productName = Snappy;
 			productReference = 4D4F747C2FE41CE57EBF2893 /* Snappy.app */;
@@ -267,6 +279,7 @@
 			packageReferences = (
 				41E4ACB6394002CAD3819EF9 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				C8A2B3C4D5E6F70819A0B1C8 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+				B1B2B3B4B5B6B7B8B9BABBC0 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3F8FC060290DB970390F6466 /* Products */;
@@ -314,6 +327,8 @@
 				A431A5016ED2634005F2F238 /* App.swift in Sources */,
 				F2C4C6A6CDD5313BE83F2B42 /* AppTheme.swift in Sources */,
 				A1B2C3D4E5F60718293A4B5C /* VisionOCRService.swift in Sources */,
+				E1E2E3E4E5E6E7E8E9EAEBEC /* LocalLLMService.swift in Sources */,
+				E1E2E3E4E5E6E7E8E9EAEBEE /* LLMEnhancementPrompt.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,6 +538,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		B1B2B3B4B5B6B7B8B9BABBC0 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ml-explore/mlx-swift-examples";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 2.29.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -535,6 +558,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C8A2B3C4D5E6F70819A0B1C8 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
 			productName = MarkdownUI;
+		};
+		B1B2B3B4B5B6B7B8B9BABBBD /* MLXLLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B1B2B3B4B5B6B7B8B9BABBC0 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */;
+			productName = MLXLLM;
+		};
+		B1B2B3B4B5B6B7B8B9BABBBF /* MLXLMCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B1B2B3B4B5B6B7B8B9BABBC0 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */;
+			productName = MLXLMCommon;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

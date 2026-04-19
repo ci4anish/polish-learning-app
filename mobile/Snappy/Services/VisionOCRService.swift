@@ -74,7 +74,7 @@ struct VisionOCRService {
 
         return lines.map { line in
             let relativeHeight = line.boundingBoxHeight / maxHeight
-            return TextBlock(relativeHeight: relativeHeight, original: line.text)
+            return TextBlock(type: .paragraph, relativeHeight: relativeHeight, original: line.text)
         }
     }
 }

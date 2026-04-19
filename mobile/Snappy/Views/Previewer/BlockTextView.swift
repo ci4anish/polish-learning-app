@@ -120,19 +120,10 @@ struct BlockTextView: UIViewRepresentable {
         let result = NSMutableAttributedString()
         var originalRanges: [NSRange] = []
 
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 4
-        paragraphStyle.paragraphSpacing = 14
-
-        let attrs: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 18, weight: .regular),
-            .foregroundColor: UIColor.label,
-            .paragraphStyle: paragraphStyle,
-        ]
-
         for (i, block) in blocks.enumerated() {
             if i > 0 { result.append(NSAttributedString(string: "\n")) }
 
+            let attrs = attributes(for: block)
             let originalStart = result.length
             result.append(NSAttributedString(string: block.original, attributes: attrs))
 
@@ -140,6 +131,29 @@ struct BlockTextView: UIViewRepresentable {
         }
 
         return (result, originalRanges)
+    }
+
+    private static func attributes(for block: TextBlock) -> [NSAttributedString.Key: Any] {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 4
+        paragraphStyle.paragraphSpacing = block.type == .heading ? 18 : 14
+
+        switch block.type {
+        case .heading:
+            let size: CGFloat = block.relativeHeight > 0.7 ? 24 : 20
+            paragraphStyle.alignment = .center
+            return [
+                .font: UIFont.systemFont(ofSize: size, weight: .bold),
+                .foregroundColor: UIColor.label,
+                .paragraphStyle: paragraphStyle,
+            ]
+        case .paragraph:
+            return [
+                .font: UIFont.systemFont(ofSize: 18, weight: .regular),
+                .foregroundColor: UIColor.label,
+                .paragraphStyle: paragraphStyle,
+            ]
+        }
     }
 
     // MARK: - Coordinator

@@ -133,6 +133,9 @@ struct HistoryPlaceholderView: View {
 
 struct ProfileView: View {
     @Environment(AuthService.self) private var auth
+    @State private var llm = LocalLLMService.shared
+    @AppStorage("useLocalAI") private var useLocalAI = false
+    @AppStorage("useLocalAITranslation") private var useLocalAITranslation = false
 
     var body: some View {
         List {
@@ -152,6 +155,14 @@ struct ProfileView: View {
                 }
             }
 
+            Section("Локальний AI (Qwen 2.5 1.5B)") {
+                LocalAIControls(
+                    llm: llm,
+                    useLocalAI: $useLocalAI,
+                    useLocalAITranslation: $useLocalAITranslation
+                )
+            }
+
             Section {
                 Button(role: .destructive) {
                     Task { await auth.signOut() }
@@ -161,6 +172,68 @@ struct ProfileView: View {
             }
         }
         .navigationTitle("Профіль")
+        .task { await llm.checkLocalAvailability() }
+    }
+}
+
+private struct LocalAIControls: View {
+    @Bindable var llm: LocalLLMService
+    @Binding var useLocalAI: Bool
+    @Binding var useLocalAITranslation: Bool
+
+    var body: some View {
+        switch llm.state {
+        case .notDownloaded:
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Модель ~900 МБ. Працює офлайн на пристрої.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button {
+                    Task { await llm.download() }
+                } label: {
+                    Label("Завантажити модель", systemImage: "arrow.down.circle")
+                }
+            }
+        case .downloading(let progress):
+            VStack(alignment: .leading, spacing: 6) {
+                ProgressView(value: progress)
+                Text("Завантажую \(Int(progress * 100))%")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        case .loading:
+            HStack(spacing: 8) {
+                ProgressView()
+                Text("Завантажую модель в памʼять...")
+            }
+        case .ready:
+            Toggle("Покращувати OCR за допомогою AI", isOn: $useLocalAI)
+            Toggle("Покращувати переклади за допомогою AI", isOn: $useLocalAITranslation)
+            Button(role: .destructive) {
+                Task { await llm.delete() }
+            } label: {
+                Label("Видалити модель", systemImage: "trash")
+            }
+        case .error(let msg):
+            VStack(alignment: .leading, spacing: 6) {
+                Text(msg)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                Button {
+                    Task { await llm.download() }
+                } label: {
+                    Label("Повторити", systemImage: "arrow.clockwise")
+                }
+            }
+        case .unsupported(let msg):
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                Text(msg)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
