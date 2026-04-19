@@ -1,4 +1,5 @@
 import SwiftUI
+import Translation
 
 struct PreviewerView: View {
     @Bindable var viewModel: OCRViewModel
@@ -7,7 +8,7 @@ struct PreviewerView: View {
     @State private var translatedText: String?
     @State private var isTranslating = false
     @State private var translateError: String?
-    @State private var translateTask: Task<Void, Never>?
+    @State private var translationConfig: TranslationSession.Configuration?
     @State private var chatViewModel: ChatViewModel?
 
     var body: some View {
@@ -36,32 +37,37 @@ struct PreviewerView: View {
             ChatView(viewModel: vm)
         }
         .onChange(of: selection) { _, newValue in
-            translateTask?.cancel()
             translatedText = nil
             translateError = nil
 
-            guard let sel = newValue else {
+            guard newValue != nil else {
                 isTranslating = false
                 return
             }
 
             isTranslating = true
-            translateTask = Task {
-                do {
-                    let context = sel.sentenceContext != sel.text ? sel.sentenceContext : nil
-                    let result = try await APIService.shared.translateText(
-                        text: sel.text,
-                        context: context,
-                        sourceLanguage: viewModel.detectedLanguage
-                    )
-                    guard !Task.isCancelled else { return }
-                    translatedText = result
-                } catch {
-                    guard !Task.isCancelled else { return }
-                    translateError = error.localizedDescription
-                }
-                isTranslating = false
+
+            let source = Locale.Language(identifier: viewModel.detectedLanguage ?? "pl")
+            let target = Locale.Language(identifier: "uk")
+
+            if translationConfig == nil {
+                translationConfig = .init(source: source, target: target)
+            } else {
+                translationConfig?.source = source
+                translationConfig?.target = target
+                translationConfig?.invalidate()
             }
+        }
+        .translationTask(translationConfig) { session in
+            nonisolated(unsafe) let session = session
+            guard let text = selection?.text else { return }
+            do {
+                let response = try await session.translate(text)
+                translatedText = response.targetText
+            } catch {
+                translateError = error.localizedDescription
+            }
+            isTranslating = false
         }
     }
 
