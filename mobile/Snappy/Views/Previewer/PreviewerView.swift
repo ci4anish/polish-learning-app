@@ -4,6 +4,7 @@ import Translation
 struct PreviewerView: View {
     @Bindable var viewModel: OCRViewModel
 
+    @Environment(AuthService.self) private var auth
     @State private var selection: TextSelection?
     @State private var translatedText: String?
     @State private var isTranslating = false
@@ -255,7 +256,7 @@ struct PreviewerView: View {
                     )
                 } label: {
                     HStack(spacing: 6) {
-                        Image(systemName: "sparkles")
+                        Image(systemName: auth.isAuthenticated ? "sparkles" : "lock.fill")
                         Text("Репетитор")
                     }
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
@@ -263,6 +264,15 @@ struct PreviewerView: View {
                     .padding(.vertical, 10)
                 }
                 .buttonStyle(.glass)
+                .disabled(!auth.isAuthenticated)
+                .opacity(auth.isAuthenticated ? 1.0 : 0.55)
+            }
+
+            if !auth.isAuthenticated {
+                Text("Увійдіть у вкладці «Профіль», щоб користуватися аудіо та AI-репетитором.")
+                    .font(.system(.caption2, design: .rounded))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(AppTheme.padding)

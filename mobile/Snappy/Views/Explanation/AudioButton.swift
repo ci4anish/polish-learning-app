@@ -4,6 +4,7 @@ import SwiftUI
 struct AudioButton: View {
     let text: String
 
+    @Environment(AuthService.self) private var auth
     @State private var isLoading = false
     @State private var isPlaying = false
     @State private var errorMessage: String?
@@ -22,6 +23,8 @@ struct AudioButton: View {
                     ProgressView()
                         .scaleEffect(0.8)
                         .frame(width: 16, height: 16)
+                } else if !auth.isAuthenticated {
+                    Image(systemName: "lock.fill")
                 } else {
                     Image(systemName: isPlaying ? "stop.fill" : "speaker.wave.2.fill")
                 }
@@ -32,7 +35,8 @@ struct AudioButton: View {
             .padding(.vertical, 10)
         }
         .buttonStyle(.glass)
-        .opacity(isLoading ? 0.6 : 1.0)
+        .disabled(!auth.isAuthenticated)
+        .opacity(isLoading ? 0.6 : (auth.isAuthenticated ? 1.0 : 0.55))
         .animation(.easeInOut(duration: 0.2), value: isLoading)
         .animation(.easeInOut(duration: 0.2), value: isPlaying)
         .onChange(of: playerDelegate.isFinished) { _, finished in
