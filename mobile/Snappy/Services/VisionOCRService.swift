@@ -13,26 +13,27 @@ enum VisionOCRError: LocalizedError {
     }
 }
 
-struct VisionOCRService {
+/// One line as returned by Vision, in normalised image coordinates
+/// (0,0 = bottom-left, 1,1 = top-right — Vision's default).
+struct RecognizedLine: Sendable, Equatable {
+    let text: String
+    let boundingBox: CGRect
+    var height: CGFloat { boundingBox.height }
+}
 
-    private struct RecognizedLine: Sendable {
-        let text: String
-        let boundingBoxHeight: CGFloat
-    }
+struct VisionOCRService {
 
     static func recognizeText(
         from imageData: Data,
         languages: [String] = ["pl"]
-    ) async throws -> (blocks: [TextBlock], detectedLanguage: String) {
+    ) async throws -> (lines: [RecognizedLine], detectedLanguage: String) {
         guard let cgImage = UIImage(data: imageData)?.cgImage else {
             throw VisionOCRError.invalidImage
         }
 
         let lines = try await performRecognition(on: cgImage, languages: languages)
-        let blocks = buildBlocks(from: lines)
         let detectedLanguage = languages.first ?? "pl"
-
-        return (blocks, detectedLanguage)
+        return (lines, detectedLanguage)
     }
 
     private static func performRecognition(
@@ -49,7 +50,7 @@ struct VisionOCRService {
                 let observations = (request.results as? [VNRecognizedTextObservation]) ?? []
                 let lines = observations.compactMap { obs -> RecognizedLine? in
                     guard let candidate = obs.topCandidates(1).first else { return nil }
-                    return RecognizedLine(text: candidate.string, boundingBoxHeight: obs.boundingBox.height)
+                    return RecognizedLine(text: candidate.string, boundingBox: obs.boundingBox)
                 }
                 continuation.resume(returning: lines)
             }
@@ -64,17 +65,6 @@ struct VisionOCRService {
             } catch {
                 continuation.resume(throwing: VisionOCRError.recognitionFailed(error.localizedDescription))
             }
-        }
-    }
-
-    private static func buildBlocks(from lines: [RecognizedLine]) -> [TextBlock] {
-        guard !lines.isEmpty else { return [] }
-
-        let maxHeight = lines.map(\.boundingBoxHeight).max() ?? 1
-
-        return lines.map { line in
-            let relativeHeight = line.boundingBoxHeight / maxHeight
-            return TextBlock(type: .paragraph, relativeHeight: relativeHeight, original: line.text)
         }
     }
 }

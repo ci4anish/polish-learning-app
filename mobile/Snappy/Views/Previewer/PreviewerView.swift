@@ -35,6 +35,10 @@ struct PreviewerView: View {
 
             if viewModel.isEnhancing {
                 enhancingIndicator
+            } else if let summary = viewModel.enhancementSummary {
+                enhancementBadge(summary)
+            } else if let err = viewModel.enhancementError {
+                enhancementErrorBadge(err)
             }
 
             if let sel = selection {
@@ -61,7 +65,8 @@ struct PreviewerView: View {
 
             isTranslating = true
 
-            let source = Locale.Language(identifier: viewModel.detectedLanguage ?? "pl")
+            let langCode = viewModel.detectedLanguage.isEmpty ? "pl" : viewModel.detectedLanguage
+            let source = Locale.Language(identifier: langCode)
             let target = Locale.Language(identifier: "uk")
 
             if translationConfig == nil {
@@ -93,12 +98,16 @@ struct PreviewerView: View {
 
     private func scheduleTranslationEnhancement(for sel: TextSelection, draft: String) {
         guard useLocalAITranslation else { return }
-        guard LocalLLMService.shared.state == .ready else { return }
+        let svc = LocalLLMService.shared
+        switch svc.status(for: svc.translationModel) {
+        case .ready, .downloaded: break
+        default: return
+        }
 
         let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        let sourceLanguage = viewModel.detectedLanguage ?? "pl"
+        let sourceLanguage = viewModel.detectedLanguage.isEmpty ? "pl" : viewModel.detectedLanguage
         let context = sel.sentenceContext != sel.text ? sel.sentenceContext : nil
 
         isEnhancingTranslation = true
@@ -155,7 +164,7 @@ struct PreviewerView: View {
             HStack(spacing: 8) {
                 ProgressView()
                     .scaleEffect(0.7)
-                Text("Покращую за допомогою AI…")
+                Text("Класифікую заголовки…")
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(.secondary)
             }
@@ -165,6 +174,41 @@ struct PreviewerView: View {
             .padding(.top, 12)
             Spacer()
         }
+    }
+
+    private func enhancementBadge(_ summary: AIEnhancementSummary) -> some View {
+        VStack {
+            HStack(spacing: 6) {
+                Image(systemName: "sparkles")
+                    .font(.caption2)
+                Text("AI: \(summary.headings) заг., \(summary.paragraphs) абз. (з \(summary.mergedFromLines) рядків)")
+                    .font(.system(.caption2, design: .rounded, weight: .medium))
+            }
+            .foregroundStyle(.tint)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .glassEffect(.regular, in: .capsule)
+            .padding(.top, 12)
+            Spacer()
+        }
+    }
+
+    private func enhancementErrorBadge(_ message: String) -> some View {
+        VStack {
+            HStack(spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.caption2)
+                Text("AI не вдалось — показую базовий результат")
+                    .font(.system(.caption2, design: .rounded))
+            }
+            .foregroundStyle(.orange)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .glassEffect(.regular, in: .capsule)
+            .padding(.top, 12)
+            Spacer()
+        }
+        .accessibilityLabel(Text("AI помилка: \(message)"))
     }
 
     private func errorView(_ message: String) -> some View {
@@ -252,7 +296,7 @@ struct PreviewerView: View {
                     chatViewModel = ChatViewModel(
                         selectedText: selection.text,
                         context: selection.sentenceContext != selection.text ? selection.sentenceContext : nil,
-                        sourceLanguage: viewModel.detectedLanguage
+                        sourceLanguage: viewModel.detectedLanguage.isEmpty ? nil : viewModel.detectedLanguage
                     )
                 } label: {
                     HStack(spacing: 6) {

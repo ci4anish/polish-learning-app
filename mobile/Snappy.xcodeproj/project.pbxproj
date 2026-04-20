@@ -34,6 +34,7 @@
 		E1E2E3E4E5E6E7E8E9EAEBEE /* LLMEnhancementPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E2E3E4E5E6E7E8E9EAEBEF /* LLMEnhancementPrompt.swift */; };
 		B2C3D4E5F60718293A4B5C6D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F60718293A4B5C6E /* ContentView.swift */; };
 		B2C3D4E5F60718293A4B5C6F /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F60718293A4B5C70 /* ProfileView.swift */; };
+		B2C3D4E5F60718293A4B5C72 /* BlockMerger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F60718293A4B5C73 /* BlockMerger.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +64,7 @@
 		E1E2E3E4E5E6E7E8E9EAEBEF /* LLMEnhancementPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMEnhancementPrompt.swift; sourceTree = "<group>"; };
 		B2C3D4E5F60718293A4B5C6E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B2C3D4E5F60718293A4B5C70 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		B2C3D4E5F60718293A4B5C73 /* BlockMerger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMerger.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +154,7 @@
 				B7A5C53021AFB460192747EA /* APIService.swift */,
 				70594E455FAB4B1AE14BC029 /* AuthService.swift */,
 				A1B2C3D4E5F60718293A4B5D /* VisionOCRService.swift */,
+				B2C3D4E5F60718293A4B5C73 /* BlockMerger.swift */,
 				E1E2E3E4E5E6E7E8E9EAEBED /* LocalLLMService.swift */,
 				E1E2E3E4E5E6E7E8E9EAEBEF /* LLMEnhancementPrompt.swift */,
 			);
@@ -329,6 +332,7 @@
 				E1E2E3E4E5E6E7E8E9EAEBEE /* LLMEnhancementPrompt.swift in Sources */,
 				B2C3D4E5F60718293A4B5C6D /* ContentView.swift in Sources */,
 				B2C3D4E5F60718293A4B5C6F /* ProfileView.swift in Sources */,
+				B2C3D4E5F60718293A4B5C72 /* BlockMerger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

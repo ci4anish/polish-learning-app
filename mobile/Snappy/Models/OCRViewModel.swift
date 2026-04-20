@@ -1,5 +1,13 @@
 import SwiftUI
 
+/// Summary of what the AI classifier produced — surfaced in the UI so the
+/// user can actually see whether AI ran and what it changed.
+struct AIEnhancementSummary: Equatable, Sendable {
+    let headings: Int
+    let paragraphs: Int
+    let mergedFromLines: Int
+}
+
 @Observable
 final class OCRViewModel: @unchecked Sendable {
     private(set) var blocks: [TextBlock] = []
@@ -7,6 +15,8 @@ final class OCRViewModel: @unchecked Sendable {
     private(set) var isLoading = true
     private(set) var isEnhancing = false
     private(set) var error: String?
+    private(set) var enhancementSummary: AIEnhancementSummary?
+    private(set) var enhancementError: String?
 
     init() {}
 
@@ -20,6 +30,8 @@ final class OCRViewModel: @unchecked Sendable {
         isLoading = true
         isEnhancing = false
         error = nil
+        enhancementSummary = nil
+        enhancementError = nil
         blocks = []
 
         Task {
@@ -27,31 +39,46 @@ final class OCRViewModel: @unchecked Sendable {
                 let languages = [languageHint ?? "pl"]
                 let result = try await VisionOCRService.recognizeText(from: imageData, languages: languages)
 
-                let visionBlocks = result.blocks
+                let mergedBlocks = BlockMerger.makeBlocks(result.lines)
+                let rawLineCount = result.lines.count
+
                 await MainActor.run {
                     self.detectedLanguage = result.detectedLanguage
-                    self.blocks = visionBlocks
+                    self.blocks = mergedBlocks
                     self.isLoading = false
                 }
 
                 let useLocalAI = UserDefaults.standard.bool(forKey: "useLocalAI")
                 guard useLocalAI else { return }
 
-                let llmReady = await MainActor.run { LocalLLMService.shared.state == .ready }
-                guard llmReady else { return }
+                let canEnhance = await MainActor.run { () -> Bool in
+                    let svc = LocalLLMService.shared
+                    switch svc.status(for: svc.ocrModel) {
+                    case .ready, .downloaded: return true
+                    default: return false
+                    }
+                }
+                guard canEnhance else { return }
 
                 await MainActor.run { self.isEnhancing = true }
 
                 do {
-                    let enhanced = try await LocalLLMService.shared.enhance(
-                        blocks: visionBlocks, language: result.detectedLanguage
+                    let classified = try await LocalLLMService.shared.classify(blocks: mergedBlocks)
+                    let summary = AIEnhancementSummary(
+                        headings: classified.filter { $0.type == .heading }.count,
+                        paragraphs: classified.filter { $0.type == .paragraph }.count,
+                        mergedFromLines: rawLineCount
                     )
                     await MainActor.run {
-                        self.blocks = enhanced
+                        self.blocks = classified
+                        self.enhancementSummary = summary
                         self.isEnhancing = false
                     }
                 } catch {
-                    await MainActor.run { self.isEnhancing = false }
+                    await MainActor.run {
+                        self.enhancementError = error.localizedDescription
+                        self.isEnhancing = false
+                    }
                 }
             } catch {
                 await MainActor.run {

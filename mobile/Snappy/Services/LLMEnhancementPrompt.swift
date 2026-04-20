@@ -2,72 +2,69 @@ import Foundation
 
 enum LLMEnhancementPrompt {
 
-    static let systemPrompt = """
-    You are a text-cleanup assistant for OCR output.
-    The input is a numbered list of raw OCR lines from a single page image.
-    Each line has a relative font size (0.0 = smallest, 1.0 = largest line on the page).
+    // MARK: - Classification (heading vs paragraph)
 
-    Your job:
-    1. MERGE adjacent lines that belong to the same paragraph (lines that wrap due to image width).
-    2. CLASSIFY each resulting block as either "heading" or "paragraph".
-       - Headings are usually short, larger relative size, and stand alone.
-       - Paragraphs are flowing prose, usually multiple sentences.
-    3. FIX obvious OCR typos (broken words across line breaks, missing diacritics for the language, swapped letters).
-       Do NOT invent content. Do NOT translate. Preserve the original language.
-    4. Preserve sentence order from the input.
+    static let classificationSystemPrompt = """
+    You classify text blocks from a scanned page as either heading or paragraph.
 
-    OUTPUT STRICTLY this JSON shape, nothing else, no markdown fences:
-    {"blocks":[{"type":"heading"|"paragraph","text":"...","sourceLines":[<line indices>]}]}
+    Definitions:
+    - heading: a title, chapter name, section title, or short standalone label.
+      Usually short (a few words), often larger font, often centred or bold,
+      rarely ends with a period.
+    - paragraph: flowing prose, usually one or more full sentences.
 
-    "sourceLines" must be the 1-based indices from the input list that contributed to this block.
+    You will receive a numbered list of blocks. Each block has its relative
+    font size (h, where 1.00 is the largest line on the page).
+
+    Respond with EXACTLY one character per block, in order, with no separators
+    and no other text:
+      H = heading
+      P = paragraph
+
+    Example input:
+      1. [h=1.00] Rozdział pierwszy
+      2. [h=0.42] Było to późnym wieczorem, gdy ktoś zapukał do drzwi.
+      3. [h=0.42] Marek wstał i poszedł otworzyć.
+      4. [h=0.78] Niespodziewany gość
+
+    Example output:
+      HPPH
     """
 
-    static func userPrompt(for blocks: [TextBlock], language: String) -> String {
-        var s = "Language: \(language)\n\nLines:\n"
+    static func classificationUserPrompt(for blocks: [TextBlock]) -> String {
+        var s = "Blocks:\n"
         for (i, block) in blocks.enumerated() {
             let h = String(format: "%.2f", Double(block.relativeHeight))
-            s += "\(i + 1). [h=\(h)] \(block.original)\n"
+            let preview = block.original
+                .replacingOccurrences(of: "\n", with: " ")
+                .prefix(160)
+            s += "\(i + 1). [h=\(h)] \(preview)\n"
         }
-        s += "\nReturn the JSON now."
+        s += "\nAnswer with \(blocks.count) characters (H or P), nothing else."
         return s
     }
 
-    struct LLMResponse: Decodable {
-        let blocks: [LLMBlock]
-    }
-
-    struct LLMBlock: Decodable {
-        let type: String
-        let text: String
-        let sourceLines: [Int]?
-    }
-
-    static func parseResponse(_ raw: String, sourceBlocks: [TextBlock]) throws -> [TextBlock] {
-        let cleaned = stripCodeFences(raw)
-        guard let data = cleaned.data(using: .utf8) else {
-            throw NSError(domain: "LLMEnhancementPrompt", code: 1, userInfo: [NSLocalizedDescriptionKey: "Empty response"])
+    /// Parses the model's raw output into one `BlockType` per input block.
+    /// Tolerates whitespace, extra commentary, lowercase, and short answers
+    /// (missing positions default to `.paragraph`).
+    static func parseClassification(_ raw: String, expectedCount: Int) -> [TextBlock.BlockType] {
+        let letters = raw.uppercased().compactMap { ch -> Character? in
+            (ch == "H" || ch == "P") ? ch : nil
         }
-        let decoded = try JSONDecoder().decode(LLMResponse.self, from: data)
 
-        return decoded.blocks.map { llmBlock in
-            let type: TextBlock.BlockType = llmBlock.type.lowercased() == "heading" ? .heading : .paragraph
-
-            let relativeHeight: CGFloat = {
-                guard let indices = llmBlock.sourceLines, !indices.isEmpty else {
-                    return type == .heading ? 1.0 : 0.5
-                }
-                let heights = indices.compactMap { idx -> CGFloat? in
-                    let i = idx - 1
-                    guard i >= 0 && i < sourceBlocks.count else { return nil }
-                    return sourceBlocks[i].relativeHeight
-                }
-                guard !heights.isEmpty else { return 0.5 }
-                return heights.reduce(0, +) / CGFloat(heights.count)
-            }()
-
-            return TextBlock(type: type, relativeHeight: relativeHeight, original: llmBlock.text)
+        var result: [TextBlock.BlockType] = []
+        result.reserveCapacity(expectedCount)
+        for i in 0..<expectedCount {
+            if i < letters.count {
+                result.append(letters[i] == "H" ? .heading : .paragraph)
+            } else {
+                result.append(.paragraph)
+            }
         }
+        return result
     }
+
+    // MARK: - Translation refinement (unchanged)
 
     static let translationSystemPrompt = """
     You are a professional translator that refines machine-translation output.
@@ -118,21 +115,5 @@ enum LLMEnhancementPrompt {
         let trimChars = CharacterSet(charactersIn: "\"'`«»“”„ \t")
         t = t.trimmingCharacters(in: trimChars)
         return t
-    }
-
-    private static func stripCodeFences(_ s: String) -> String {
-        var t = s.trimmingCharacters(in: .whitespacesAndNewlines)
-        if t.hasPrefix("```") {
-            if let firstNewline = t.firstIndex(of: "\n") {
-                t = String(t[t.index(after: firstNewline)...])
-            }
-        }
-        if t.hasSuffix("```") {
-            t = String(t.dropLast(3))
-        }
-        if let openIdx = t.firstIndex(of: "{"), let closeIdx = t.lastIndex(of: "}") {
-            t = String(t[openIdx...closeIdx])
-        }
-        return t.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
