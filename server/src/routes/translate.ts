@@ -1,11 +1,8 @@
 import { Hono } from "hono";
 import type { Bindings, Variables } from "../types";
 import { performTranslation } from "../services/translate";
-import { authMiddleware } from "../middleware/auth";
 
 const translate = new Hono<{ Bindings: Bindings; Variables: Variables }>();
-
-translate.use(authMiddleware);
 
 translate.post("/", async (c) => {
   const body = await c.req.json<{

@@ -1,12 +1,8 @@
 export type Bindings = {
   GEMINI_API_KEY: string;
-  SUPABASE_URL: string;
-  SUPABASE_SERVICE_ROLE_KEY: string;
 };
 
-export type Variables = {
-  userId: string;
-};
+export type Variables = Record<string, never>;
 
 export type TextBlock = {
   type: "heading" | "paragraph";

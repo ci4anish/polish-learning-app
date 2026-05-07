@@ -4,9 +4,9 @@ import Foundation
 final class ChatViewModel: @unchecked Sendable, Identifiable {
     let id = UUID()
     private(set) var messages: [ChatMessage] = []
-    private(set) var threadId: String?
     private(set) var isStreaming = false
     private(set) var error: String?
+    private(set) var hasStarted = false
 
     var inputText = ""
 
@@ -23,35 +23,20 @@ final class ChatViewModel: @unchecked Sendable, Identifiable {
 
     @MainActor
     func startChat() {
-        guard threadId == nil else { return }
+        guard !hasStarted else { return }
+        hasStarted = true
         isStreaming = true
         error = nil
 
         streamTask = Task {
-            do {
-                let id = try await APIService.shared.chatStart(
-                    text: selectedText,
-                    context: context,
-                    sourceLanguage: sourceLanguage
-                )
-
-                await MainActor.run { self.threadId = id }
-
-                let initialPrompt = buildInitialPrompt()
-                await streamResponse(for: initialPrompt)
-            } catch {
-                await MainActor.run {
-                    self.error = error.localizedDescription
-                    self.isStreaming = false
-                }
-            }
+            await streamResponse()
         }
     }
 
     @MainActor
     func sendMessage() {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty, !isStreaming, threadId != nil else { return }
+        guard !text.isEmpty, !isStreaming, hasStarted else { return }
 
         inputText = ""
         messages.append(ChatMessage(role: .user, content: text))
@@ -60,7 +45,7 @@ final class ChatViewModel: @unchecked Sendable, Identifiable {
         error = nil
 
         streamTask = Task {
-            await streamResponse(for: text)
+            await streamResponse()
         }
     }
 
@@ -68,28 +53,25 @@ final class ChatViewModel: @unchecked Sendable, Identifiable {
         streamTask?.cancel()
     }
 
-    private func buildInitialPrompt() -> String {
-        var parts: [String] = []
-        if let lang = sourceLanguage { parts.append("Мова тексту: \(lang)") }
-        if let ctx = context, ctx != selectedText { parts.append("Контекст: «\(ctx)»") }
-        parts.append("Виділений текст: «\(selectedText)»")
-        parts.append("Привітай мене коротко і поясни граматику виділеного тексту.")
-        return parts.joined(separator: "\n")
+    @MainActor
+    private func snapshotHistory() -> [APIService.ChatHistoryMessage] {
+        messages.map { APIService.ChatHistoryMessage(role: $0.role.rawValue, content: $0.content) }
     }
 
-    private func streamResponse(for message: String) async {
-        guard let threadId else { return }
-
+    private func streamResponse() async {
         let assistantMessage = ChatMessage(role: .assistant, content: "")
         await MainActor.run {
             self.messages.append(assistantMessage)
         }
         let messageIndex = await MainActor.run { self.messages.count - 1 }
+        let history = await snapshotHistoryExcludingLast()
 
         do {
-            let stream = try await APIService.shared.streamChatMessage(
-                threadId: threadId,
-                message: message
+            let stream = try await APIService.shared.streamChat(
+                selectedText: selectedText,
+                context: context,
+                sourceLanguage: sourceLanguage,
+                history: history
             )
 
             for try await chunk in stream {
@@ -111,5 +93,11 @@ final class ChatViewModel: @unchecked Sendable, Identifiable {
         await MainActor.run {
             self.isStreaming = false
         }
+    }
+
+    @MainActor
+    private func snapshotHistoryExcludingLast() -> [APIService.ChatHistoryMessage] {
+        let trimmed = messages.dropLast()
+        return trimmed.map { APIService.ChatHistoryMessage(role: $0.role.rawValue, content: $0.content) }
     }
 }

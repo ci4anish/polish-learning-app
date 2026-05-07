@@ -1,11 +1,8 @@
 import { Hono } from "hono";
 import type { Bindings, Variables } from "../types";
 import { performTTS } from "../services/audio";
-import { authMiddleware } from "../middleware/auth";
 
 const audio = new Hono<{ Bindings: Bindings; Variables: Variables }>();
-
-audio.use(authMiddleware);
 
 audio.post("/", async (c) => {
   const body = await c.req.json<{ text?: string; language?: string }>();

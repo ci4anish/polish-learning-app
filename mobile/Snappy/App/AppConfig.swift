@@ -1,16 +1,6 @@
 import Foundation
 
 enum AppConfig {
-    static let supabaseURL: URL = {
-        let host = string(for: "SupabaseHost")
-        guard let url = URL(string: "https://\(host)") else {
-            fatalError("Invalid SupabaseHost in Config.xcconfig: \(host)")
-        }
-        return url
-    }()
-
-    static let supabasePublishableKey: String = string(for: "SupabasePublishableKey")
-
     static let apiBaseURL: String = {
         #if targetEnvironment(simulator)
         return "http://localhost:8787"

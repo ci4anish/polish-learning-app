@@ -1,16 +1,12 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { stream } from "hono/streaming";
-import type { Bindings, Variables, TextBlock } from "../types";
+import type { Bindings, Variables } from "../types";
 import { performOcr } from "../services/ocr";
-import { authMiddleware } from "../middleware/auth";
-import { createSupabaseClient } from "../lib/supabase";
 
 type AppContext = Context<{ Bindings: Bindings; Variables: Variables }>;
 
 const ocr = new Hono<{ Bindings: Bindings; Variables: Variables }>();
-
-ocr.use(authMiddleware);
 
 async function extractImage(c: AppContext): Promise<{ imageBase64: string; languageHint?: string } | null> {
   const contentType = c.req.header("content-type") ?? "";
@@ -48,25 +44,6 @@ ocr.post("/", async (c) => {
   }
 
   const result = await performOcr(input.imageBase64, c.env, input.languageHint);
-
-  const userId = c.get("userId");
-  if (userId && result.success && result.content) {
-    const supabase = createSupabaseClient(c.env);
-    c.executionCtx.waitUntil(
-      Promise.resolve(
-        supabase.from("ocr_history").insert({
-          user_id: userId,
-          detected_language: result.content.detectedLanguage,
-          blocks: result.content.blocks,
-          model: result.model,
-          provider: result.provider,
-        }),
-      ).then(({ error }) => {
-        if (error) console.error("[history] failed to save ocr history:", error.message);
-      }),
-    );
-  }
-
   return c.json(result, result.success ? 200 : 502);
 });
 
@@ -77,7 +54,6 @@ ocr.post("/stream", async (c) => {
   }
 
   const env = c.env;
-  const userId = c.get("userId");
   const encoder = new TextEncoder();
 
   c.header("Content-Type", "text/plain; charset=utf-8");
@@ -100,18 +76,6 @@ ocr.post("/stream", async (c) => {
     }
 
     await s.write(encoder.encode(JSON.stringify({ event: "done" }) + "\n"));
-
-    if (userId && blocks.length > 0) {
-      const supabase = createSupabaseClient(env);
-      const { error } = await supabase.from("ocr_history").insert({
-        user_id: userId,
-        detected_language: detectedLanguage,
-        blocks,
-        model: result.model,
-        provider: result.provider,
-      });
-      if (error) console.error("[history] failed to save ocr history:", error.message);
-    }
   });
 });
 

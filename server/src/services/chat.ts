@@ -41,7 +41,7 @@ export function createChatStream(
     baseURL: GEMINI_BASE_URL,
   });
 
-  const isFirstMessage = messages.length <= 1;
+  const isFirstMessage = messages.length === 0;
 
   const openaiMessages: OpenAI.ChatCompletionMessageParam[] = [
     { role: "system", content: SYSTEM_PROMPT },
@@ -53,6 +53,10 @@ export function createChatStream(
       content: buildInitialUserPrompt(selectedText, context, sourceLanguage),
     });
   } else {
+    openaiMessages.push({
+      role: "user",
+      content: `Виділений текст: «${selectedText}»${context && context !== selectedText ? `\nКонтекст: «${context}»` : ""}`,
+    });
     openaiMessages.push(
       ...messages.map((m) => ({
         role: m.role as "user" | "assistant",

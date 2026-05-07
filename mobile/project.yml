@@ -6,9 +6,9 @@ options:
   generateEmptyDirectories: true
 
 packages:
-  Supabase:
-    url: https://github.com/supabase/supabase-swift
-    from: 2.0.0
+  MarkdownUI:
+    url: https://github.com/gonzalezreal/swift-markdown-ui
+    from: 2.4.0
 
 targets:
   Snappy:
@@ -20,8 +20,8 @@ targets:
       Debug: Configs/Config.xcconfig
       Release: Configs/Config.xcconfig
     dependencies:
-      - package: Supabase
-        product: Supabase
+      - package: MarkdownUI
+        product: MarkdownUI
     settings:
       base:
         INFOPLIST_FILE: Snappy/Info.plist
