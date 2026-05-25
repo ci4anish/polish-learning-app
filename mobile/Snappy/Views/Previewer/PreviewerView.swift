@@ -1,4 +1,5 @@
 import SwiftUI
+@preconcurrency import Translation
 
 struct PreviewerView: View {
     @Bindable var viewModel: OCRViewModel
@@ -7,7 +8,7 @@ struct PreviewerView: View {
     @State private var translatedText: String?
     @State private var isTranslating = false
     @State private var translateError: String?
-    @State private var translateTask: Task<Void, Never>?
+    @State private var translationConfig: TranslationSession.Configuration?
     @State private var chatViewModel: ChatViewModel?
 
     var body: some View {
@@ -35,35 +36,53 @@ struct PreviewerView: View {
         .fullScreenCover(item: $chatViewModel) { vm in
             ChatView(viewModel: vm)
         }
+        .translationTask(translationConfig) { session in
+            let text = selection?.text ?? ""
+            guard !text.isEmpty else { return }
+            do {
+                let response = try await session.translate(text)
+                translatedText = response.targetText
+                isTranslating = false
+            } catch {
+                translateError = error.localizedDescription
+                isTranslating = false
+            }
+        }
         .onChange(of: selection) { _, newValue in
-            translateTask?.cancel()
             translatedText = nil
             translateError = nil
 
-            guard let sel = newValue else {
+            guard let sel = newValue,
+                  !sel.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                 isTranslating = false
+                translationConfig = nil
                 return
             }
 
             isTranslating = true
-            translateTask = Task {
-                do {
-                    let context = sel.sentenceContext != sel.text ? sel.sentenceContext : nil
-                    let result = try await APIService.shared.translateText(
-                        text: sel.text,
-                        context: context,
-                        sourceLanguage: viewModel.detectedLanguage
-                    )
-                    guard !Task.isCancelled else { return }
-                    translatedText = result
-                } catch {
-                    guard !Task.isCancelled else { return }
-                    translateError = error.localizedDescription
-                }
-                isTranslating = false
-            }
+            requestTranslation(for: sel)
         }
     }
+
+    private func requestTranslation(for sel: TextSelection) {
+        let sourceLang: Locale.Language? = viewModel.detectedLanguage.isEmpty
+            ? nil
+            : Locale.Language(identifier: viewModel.detectedLanguage)
+
+        let targetLang = Locale.Language(identifier: "uk")
+
+        if translationConfig?.source == sourceLang,
+           translationConfig?.target == targetLang,
+           translationConfig != nil {
+            translationConfig?.invalidate()
+        } else {
+            translationConfig = TranslationSession.Configuration(
+                source: sourceLang,
+                target: targetLang
+            )
+        }
+    }
+
 
     private var loadingView: some View {
         VStack(spacing: 16) {

@@ -91,6 +91,15 @@ struct BlockTextView: UIViewRepresentable {
         touchObserver.delegate = context.coordinator
         textView.addGestureRecognizer(touchObserver)
 
+        let sentenceTap = UITapGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handleSentenceTap(_:))
+        )
+        sentenceTap.numberOfTapsRequired = 1
+        sentenceTap.cancelsTouchesInView = false
+        sentenceTap.delegate = context.coordinator
+        textView.addGestureRecognizer(sentenceTap)
+
         return textView
     }
 
@@ -171,6 +180,67 @@ struct BlockTextView: UIViewRepresentable {
         init(_ parent: BlockTextView) {
             self.parent = parent
             self.previousBlocks = parent.blocks
+        }
+
+        @objc func handleSentenceTap(_ gesture: UITapGestureRecognizer) {
+            guard let textView = gesture.view as? UITextView else { return }
+            let location = gesture.location(in: textView)
+
+            guard let position = textView.closestPosition(to: location) else { return }
+            let charIndex = textView.offset(from: textView.beginningOfDocument, to: position)
+            let nsText = textView.text as NSString
+            guard charIndex >= 0, charIndex < nsText.length else { return }
+
+            guard let blockRange = originalRanges.first(where: {
+                charIndex >= $0.location && charIndex < $0.location + $0.length
+            }) else { return }
+
+            var sentenceRange: NSRange?
+            nsText.enumerateSubstrings(
+                in: blockRange,
+                options: [.bySentences, .localized]
+            ) { _, substringRange, _, stop in
+                if charIndex >= substringRange.location,
+                   charIndex < substringRange.location + substringRange.length {
+                    sentenceRange = substringRange
+                    stop.pointee = true
+                }
+            }
+
+            guard let initial = sentenceRange,
+                  let trimmed = trimWhitespace(nsText, in: initial),
+                  trimmed.length > 0 else { return }
+
+            let sentenceText = nsText.substring(with: trimmed)
+            let blockContext = nsText.substring(with: blockRange)
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.isAdjustingSelection = true
+                textView.selectedRange = trimmed
+                self.isAdjustingSelection = false
+                self.parent.onSelectionChange?(
+                    TextSelection(text: sentenceText, sentenceContext: blockContext)
+                )
+            }
+        }
+
+        private func trimWhitespace(_ text: NSString, in range: NSRange) -> NSRange? {
+            let ws = CharacterSet.whitespacesAndNewlines
+            var start = range.location
+            var end = range.location + range.length
+            while start < end {
+                let c = text.character(at: start)
+                guard let scalar = Unicode.Scalar(c), ws.contains(scalar) else { break }
+                start += 1
+            }
+            while end > start {
+                let c = text.character(at: end - 1)
+                guard let scalar = Unicode.Scalar(c), ws.contains(scalar) else { break }
+                end -= 1
+            }
+            guard end > start else { return nil }
+            return NSRange(location: start, length: end - start)
         }
 
         @objc func handleTouch(_ gesture: UIGestureRecognizer) {
